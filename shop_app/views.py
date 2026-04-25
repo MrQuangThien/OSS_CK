@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from .models import SanPham, LoaiHang, KhoHang, KhachHang, DonHang, ChiTietDonHang, PhieuNhap, ChiTietPhieuNhap
 import os
+from django.db.models import Sum
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
@@ -207,3 +209,39 @@ def lich_su_don_hang(request):
     danh_sach_don = DonHang.objects.filter(khach_hang=khach_hang).exclude(trang_thai="Giỏ hàng").order_by('-ngay_dat_hang')
     
     return render(request, 'shop_app/history.html', {'danh_sach_don': danh_sach_don})
+
+@staff_member_required(login_url='login')
+def admin_dashboard(request):
+    # 1. THỐNG KÊ 4 THẺ (CARDS) TRÊN CÙNG
+    # Tính tổng doanh thu (Chỉ cộng tiền các đơn đã 'Hoàn thành')
+    doanh_thu_qs = DonHang.objects.filter(trang_thai='Hoàn thành').aggregate(Sum('tong_tien'))
+    tong_doanh_thu = doanh_thu_qs['tong_tien__sum'] or 0
+    
+    # Đếm tổng số đơn hàng
+    tong_don_hang = DonHang.objects.exclude(trang_thai='Giỏ hàng').count()
+    
+    # Đếm tổng khách hàng
+    tong_khach_hang = KhachHang.objects.count()
+    
+    # Đếm số lượng sản phẩm sắp hết hàng (Tồn kho < 5)
+    sp_sap_het = KhoHang.objects.filter(so_luong_ton__lt=5).count()
+
+    # 2. DỮ LIỆU CHO BIỂU ĐỒ (Tỉ lệ trạng thái đơn hàng)
+    don_cho_xac_nhan = DonHang.objects.filter(trang_thai='Chờ xác nhận').count()
+    don_dang_giao = DonHang.objects.filter(trang_thai='Đang giao hàng').count()
+    don_hoan_thanh = DonHang.objects.filter(trang_thai='Hoàn thành').count()
+    don_da_huy = DonHang.objects.filter(trang_thai='Đã hủy').count()
+
+    # 3. DANH SÁCH 5 ĐƠN HÀNG MỚI NHẤT
+    don_hang_moi = DonHang.objects.exclude(trang_thai='Giỏ hàng').order_by('-ngay_dat_hang')[:5]
+
+    context = {
+        'tong_doanh_thu': tong_doanh_thu,
+        'tong_don_hang': tong_don_hang,
+        'tong_khach_hang': tong_khach_hang,
+        'sp_sap_het': sp_sap_het,
+        # Trả mảng dữ liệu biểu đồ ra HTML
+        'chart_data': [don_cho_xac_nhan, don_dang_giao, don_hoan_thanh, don_da_huy],
+        'don_hang_moi': don_hang_moi
+    }
+    return render(request, 'shop_app/admin_panel/dashboard.html', context)

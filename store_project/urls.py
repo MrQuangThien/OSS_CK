@@ -34,6 +34,8 @@ urlpatterns = [
     path('gio-hang/', views.xem_gio_hang, name='cart'),
     path('thanh-toan/', views.thanh_toan, name='checkout'),
     path('lich-su/', views.lich_su_don_hang, name='history'),
+    # URL DÀNH CHO ADMIN
+    path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
 ]
 
 if settings.DEBUG:
