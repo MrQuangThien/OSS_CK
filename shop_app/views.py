@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User # Đây chính là dòng bị thiếu
 from django.contrib import messages
 from django.core.mail import send_mail
-from .models import SanPham, LoaiHang, KhoHang, KhachHang, DonHang, ChiTietDonHang
+from .models import SanPham, LoaiHang, KhoHang, KhachHang, DonHang, ChiTietDonHang, PhieuNhap, ChiTietPhieuNhap
 import os
 from django.contrib.auth import authenticate, login, logout
-import random # Thư viện tạo số ngẫu nhiên
 from django.contrib.auth.decorators import login_required
+
+from django.shortcuts import get_object_or_404
+from .forms import SanPhamForm, LoaiHangForm, KhoHangForm
 
 def trang_chu(request):
     # Lấy TẤT CẢ loại hàng ra để đưa vào Menu bên trái

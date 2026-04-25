@@ -97,3 +97,18 @@ class ChiTietDonHang(models.Model):
 
     def __str__(self):
         return f"{self.don_hang.id} - {self.san_pham.ten_san_pham}"
+    
+# Bảng lưu thông tin chung của 1 lần nhập hàng
+class PhieuNhap(models.Model):
+    ngay_nhap = models.DateTimeField(auto_now_add=True)
+    nguoi_nhap = models.ForeignKey(User, on_delete=models.SET_NULL, null=True) # Ai là người thao tác
+    ghi_chu = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Phiếu nhập #{self.id} - {self.ngay_nhap.strftime('%d/%m/%Y')}"
+
+# Bảng lưu chi tiết từng sản phẩm trong phiếu nhập đó
+class ChiTietPhieuNhap(models.Model):
+    phieu_nhap = models.ForeignKey(PhieuNhap, on_delete=models.CASCADE, related_name='chi_tiet')
+    san_pham = models.ForeignKey(SanPham, on_delete=models.CASCADE)
+    so_luong_nhap = models.IntegerField(default=0)

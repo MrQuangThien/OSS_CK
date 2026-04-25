@@ -99,12 +99,21 @@
 </div>
 
 <div id="products">
-    <div class="section-title">
-        {% if tu_khoa %}
-            <span>KẾT QUẢ TÌM KIẾM CHO: <span class="text-primary">"{{ tu_khoa }}"</span></span>
-            <span style="font-size: 14px; font-weight: normal; color: #666; margin-left: 10px;">({{ list_san_pham|length }} sản phẩm)</span>
-        {% else %}
-            <span>SẢN PHẨM MỚI NHẤT</span>
+    <div class="section-title justify-content-between align-items-center w-100 pe-3">
+        <div>
+            {% if tu_khoa %}
+                <span>KẾT QUẢ TÌM KIẾM CHO: <span class="text-primary">"{{ tu_khoa }}"</span></span>
+            {% else %}
+                <span>SẢN PHẨM MỚI NHẤT</span>
+            {% endif %}
+        </div>
+
+        {% if user.is_staff %}
+        <div class="admin-quick-access">
+            <a href="{% url 'admin_orders' %}" class="btn btn-dark btn-sm shadow-sm" style="border-radius: 20px; font-size: 13px;">
+                <i class="fa-solid fa-user-gear me-1"></i> Trang Quản trị
+            </a>
+        </div>
         {% endif %}
     </div>
 

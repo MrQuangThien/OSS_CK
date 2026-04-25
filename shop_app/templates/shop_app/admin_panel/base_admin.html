@@ -49,51 +49,42 @@
         
         <ul class="sidebar-menu">
             <li>
-                <a href="#"><i class="fa-solid fa-chart-pie icon-main"></i> Thống kê báo cáo</a>
+                <a href="#" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie icon-main"></i> Thống kê báo cáo
+                </a>
             </li>
 
             <li>
-                <a href="{% url 'admin_orders' %}" class="active"><i class="fa-solid fa-cart-flatbed icon-main"></i> Quản lý Đơn hàng</a>
+                <a href="{% url 'admin_orders' %}" class="{% if request.resolver_match.url_name == 'admin_orders' or request.resolver_match.url_name == 'admin_order_detail' %}active{% endif %}">
+                    <i class="fa-solid fa-cart-flatbed icon-main"></i> Quản lý Đơn hàng
+                </a>
             </li>
 
             <li>
-                <a data-bs-toggle="collapse" href="#menuSanPham" role="button" aria-expanded="false" aria-controls="menuSanPham">
+                <a data-bs-toggle="collapse" href="#menuSanPham" role="button" 
+                   class="{% if 'admin_product' in request.resolver_match.url_name or 'admin_category' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fa-solid fa-laptop icon-main"></i> Hàng hóa 
                     <i class="fa-solid fa-chevron-down dropdown-toggle-icon"></i>
                 </a>
-                <ul class="collapse sidebar-submenu" id="menuSanPham">
-                    <li><a href="#"><i class="fa-solid fa-list"></i> Danh sách Sản phẩm</a></li>
-                    <li><a href="#"><i class="fa-solid fa-tags"></i> Loại hàng (Danh mục)</a></li>
+                <ul class="collapse sidebar-submenu {% if 'admin_product' in request.resolver_match.url_name or 'admin_category' in request.resolver_match.url_name %}show{% endif %}" id="menuSanPham">
+                    <li><a href="{% url 'admin_products' %}" class="{% if request.resolver_match.url_name == 'admin_products' %}active{% endif %}"><i class="fa-solid fa-list"></i> Danh sách Sản phẩm</a></li>
+                    <li><a href="{% url 'admin_categories' %}" class="{% if request.resolver_match.url_name == 'admin_categories' %}active{% endif %}"><i class="fa-solid fa-tags"></i> Loại hàng (Danh mục)</a></li>
                 </ul>
             </li>
 
             <li>
-                <a data-bs-toggle="collapse" href="#menuKhoHang" role="button" aria-expanded="false" aria-controls="menuKhoHang">
+                <a data-bs-toggle="collapse" href="#menuKhoHang" role="button" 
+                   class="{% if 'admin_inv' in request.resolver_match.url_name or 'admin_import' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fa-solid fa-warehouse icon-main"></i> Quản lý Kho 
                     <i class="fa-solid fa-chevron-down dropdown-toggle-icon"></i>
                 </a>
-                <ul class="collapse sidebar-submenu" id="menuKhoHang">
-                    <li><a href="#"><i class="fa-solid fa-boxes-stacked"></i> Tồn kho hiện tại</a></li>
-                    <li><a href="#"><i class="fa-solid fa-file-invoice"></i> Lịch sử Nhập hàng</a></li>
-                    <li><a href="#"><i class="fa-solid fa-truck-fast"></i> Nhà cung cấp</a></li>
-                </ul>
-            </li>
-
-            <li>
-                <a data-bs-toggle="collapse" href="#menuTaiKhoan" role="button" aria-expanded="false" aria-controls="menuTaiKhoan">
-                    <i class="fa-solid fa-users icon-main"></i> Tài khoản 
-                    <i class="fa-solid fa-chevron-down dropdown-toggle-icon"></i>
-                </a>
-                <ul class="collapse sidebar-submenu" id="menuTaiKhoan">
-                    <li><a href="#"><i class="fa-solid fa-user-tag"></i> Khách hàng</a></li>
-                    <li><a href="#"><i class="fa-solid fa-user-tie"></i> Nhân viên (Quản trị)</a></li>
+                <ul class="collapse sidebar-submenu {% if 'admin_inv' in request.resolver_match.url_name or 'admin_import' in request.resolver_match.url_name %}show{% endif %}" id="menuKhoHang">
+                    <li><a href="{% url 'admin_inventory' %}" class="{% if request.resolver_match.url_name == 'admin_inventory' %}active{% endif %}"><i class="fa-solid fa-boxes-stacked"></i> Tồn kho hiện tại</a></li>
+                    <li><a href="{% url 'admin_import_history' %}" class="{% if request.resolver_match.url_name == 'admin_import_history' %}active{% endif %}"><i class="fa-solid fa-file-invoice"></i> Lịch sử Nhập hàng</a></li>
                 </ul>
             </li>
             
-            <li class="mt-3 border-top border-secondary pt-3">
-                <a href="#"><i class="fa-solid fa-gear icon-main"></i> Cài đặt hệ thống</a>
-            </li>
-        </ul>
+            </ul>
     </div>
 
     <div class="main-content">
