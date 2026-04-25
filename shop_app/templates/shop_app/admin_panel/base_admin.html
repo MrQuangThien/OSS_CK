@@ -8,17 +8,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .sidebar { height: 100vh; background-color: #343a40; color: #fff; position: fixed; width: 250px; transition: all 0.3s; }
-        .sidebar-brand { padding: 20px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #4b545c; text-align: center; }
-        .sidebar-menu { padding: 15px 0; list-style: none; margin: 0; }
-        .sidebar-menu li { padding: 5px 15px; }
-        .sidebar-menu a { color: #c2c7d0; text-decoration: none; display: block; padding: 10px 15px; border-radius: 5px; transition: all 0.2s; }
-        .sidebar-menu a:hover, .sidebar-menu a.active { background-color: #007bff; color: #fff; }
-        .sidebar-menu i { width: 25px; text-align: center; margin-right: 10px; }
         
-        .main-content { margin-left: 250px; padding: 20px; min-height: 100vh; }
+        /* SIDEBAR STYLES */
+        .sidebar { height: 100vh; background-color: #343a40; color: #fff; position: fixed; width: 260px; transition: all 0.3s; overflow-y: auto; overflow-x: hidden; }
+        /* Tùy chỉnh thanh cuộn cho sidebar */
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #6c757d; border-radius: 10px; }
+        
+        .sidebar-brand { padding: 20px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #4b545c; text-align: center; position: sticky; top: 0; background: #343a40; z-index: 10; }
+        
+        .sidebar-menu { padding: 15px 0; list-style: none; margin: 0; }
+        .sidebar-menu li { padding: 2px 10px; }
+        .sidebar-menu > li > a { color: #c2c7d0; text-decoration: none; display: block; padding: 12px 15px; border-radius: 5px; transition: all 0.2s; font-weight: 500; }
+        .sidebar-menu > li > a:hover, .sidebar-menu > li > a.active { background-color: #007bff; color: #fff; }
+        .sidebar-menu i.icon-main { width: 25px; text-align: center; margin-right: 8px; }
+        
+        /* SUB-MENU STYLES */
+        .sidebar-submenu { list-style: none; padding-left: 0; margin-top: 5px; background-color: #2b3035; border-radius: 5px; overflow: hidden; }
+        .sidebar-submenu li { padding: 0; }
+        .sidebar-submenu a { color: #adb5bd; text-decoration: none; display: block; padding: 10px 15px 10px 45px; font-size: 0.9rem; transition: all 0.2s; }
+        .sidebar-submenu a:hover, .sidebar-submenu a.active { color: #fff; background-color: rgba(255,255,255,0.1); }
+        .sidebar-submenu i { margin-right: 8px; font-size: 0.8rem; }
+        
+        /* MAIN CONTENT STYLES */
+        .main-content { margin-left: 260px; padding: 20px; min-height: 100vh; }
         .top-navbar { background: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .card-admin { border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        
+        /* Hiệu ứng mũi tên xổ xuống */
+        .dropdown-toggle-icon { transition: transform 0.3s; float: right; margin-top: 4px; font-size: 0.8rem; }
+        [aria-expanded="true"] .dropdown-toggle-icon { transform: rotate(180deg); }
     </style>
 </head>
 <body>
@@ -27,11 +46,53 @@
         <div class="sidebar-brand">
             <i class="fa-solid fa-user-shield text-primary me-2"></i> ADMIN PANEL
         </div>
+        
         <ul class="sidebar-menu">
-            <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Thống kê</a></li>
-            <li><a href="{% url 'admin_orders' %}" class="active"><i class="fa-solid fa-cart-flatbed"></i> Quản lý Đơn hàng</a></li>
-            <li><a href="#"><i class="fa-solid fa-laptop"></i> Quản lý Sản phẩm</a></li>
-            <li><a href="#"><i class="fa-solid fa-users"></i> Khách hàng</a></li>
+            <li>
+                <a href="#"><i class="fa-solid fa-chart-pie icon-main"></i> Thống kê báo cáo</a>
+            </li>
+
+            <li>
+                <a href="{% url 'admin_orders' %}" class="active"><i class="fa-solid fa-cart-flatbed icon-main"></i> Quản lý Đơn hàng</a>
+            </li>
+
+            <li>
+                <a data-bs-toggle="collapse" href="#menuSanPham" role="button" aria-expanded="false" aria-controls="menuSanPham">
+                    <i class="fa-solid fa-laptop icon-main"></i> Hàng hóa 
+                    <i class="fa-solid fa-chevron-down dropdown-toggle-icon"></i>
+                </a>
+                <ul class="collapse sidebar-submenu" id="menuSanPham">
+                    <li><a href="#"><i class="fa-solid fa-list"></i> Danh sách Sản phẩm</a></li>
+                    <li><a href="#"><i class="fa-solid fa-tags"></i> Loại hàng (Danh mục)</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a data-bs-toggle="collapse" href="#menuKhoHang" role="button" aria-expanded="false" aria-controls="menuKhoHang">
+                    <i class="fa-solid fa-warehouse icon-main"></i> Quản lý Kho 
+                    <i class="fa-solid fa-chevron-down dropdown-toggle-icon"></i>
+                </a>
+                <ul class="collapse sidebar-submenu" id="menuKhoHang">
+                    <li><a href="#"><i class="fa-solid fa-boxes-stacked"></i> Tồn kho hiện tại</a></li>
+                    <li><a href="#"><i class="fa-solid fa-file-invoice"></i> Lịch sử Nhập hàng</a></li>
+                    <li><a href="#"><i class="fa-solid fa-truck-fast"></i> Nhà cung cấp</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a data-bs-toggle="collapse" href="#menuTaiKhoan" role="button" aria-expanded="false" aria-controls="menuTaiKhoan">
+                    <i class="fa-solid fa-users icon-main"></i> Tài khoản 
+                    <i class="fa-solid fa-chevron-down dropdown-toggle-icon"></i>
+                </a>
+                <ul class="collapse sidebar-submenu" id="menuTaiKhoan">
+                    <li><a href="#"><i class="fa-solid fa-user-tag"></i> Khách hàng</a></li>
+                    <li><a href="#"><i class="fa-solid fa-user-tie"></i> Nhân viên (Quản trị)</a></li>
+                </ul>
+            </li>
+            
+            <li class="mt-3 border-top border-secondary pt-3">
+                <a href="#"><i class="fa-solid fa-gear icon-main"></i> Cài đặt hệ thống</a>
+            </li>
         </ul>
     </div>
 
@@ -46,7 +107,7 @@
 
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
