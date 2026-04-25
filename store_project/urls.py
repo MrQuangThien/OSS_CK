@@ -32,6 +32,8 @@ urlpatterns = [
 
     path('them-vao-gio/<int:sp_id>/', views.them_vao_gio, name='add_to_cart'),
     path('gio-hang/', views.xem_gio_hang, name='cart'),
+    path('thanh-toan/', views.thanh_toan, name='checkout'),
+    path('lich-su/', views.lich_su_don_hang, name='history'),
 ]
 
 if settings.DEBUG:

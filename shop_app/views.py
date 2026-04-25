@@ -12,12 +12,20 @@ def trang_chu(request):
     # Lấy TẤT CẢ loại hàng ra để đưa vào Menu bên trái
     danh_sach_loai = LoaiHang.objects.all()
     
-    # Lấy các sản phẩm mới (chỉ lấy 8 cái mới nhất)
-    san_pham_moi = SanPham.objects.filter(la_san_pham_moi=True)[:8]
+    # BẮT TỪ KHÓA TÌM KIẾM
+    tu_khoa = request.GET.get('keyword')
+    
+    if tu_khoa:
+        # Nếu khách có gõ tìm kiếm -> Tìm tất cả sản phẩm chứa từ khóa đó
+        danh_sach_sp = SanPham.objects.filter(ten_san_pham__icontains=tu_khoa)
+    else:
+        # Nếu không tìm kiếm -> Hiển thị 8 sản phẩm mới nhất mặc định
+        danh_sach_sp = SanPham.objects.filter(la_san_pham_moi=True)[:8]
     
     context = {
         'list_loai_hang': danh_sach_loai,
-        'list_san_pham': san_pham_moi,
+        'list_san_pham': danh_sach_sp, # Dùng chung biến này cho cả tìm kiếm và mặc định
+        'tu_khoa': tu_khoa,
     }
     return render(request, 'shop_app/home.html', context)
 
@@ -156,3 +164,44 @@ def xem_gio_hang(request):
         'tong_tien': tong_tien,
     }
     return render(request, 'shop_app/cart.html', context)
+
+@login_required(login_url='login')
+def thanh_toan(request):
+    if request.method == 'POST':
+        khach_hang = KhachHang.objects.get(user=request.user)
+        try:
+            # 1. Lấy giỏ hàng hiện tại
+            don_hang = DonHang.objects.get(khach_hang=khach_hang, trang_thai="Giỏ hàng")
+            chi_tiet_list = ChiTietDonHang.objects.filter(don_hang=don_hang)
+            
+            if not chi_tiet_list:
+                messages.error(request, "Giỏ hàng đang trống!")
+                return redirect('cart')
+
+            # 2. Trừ số lượng trong Kho Hàng
+            for item in chi_tiet_list:
+                kho = KhoHang.objects.get(san_pham=item.san_pham)
+                kho.so_luong_ton -= item.so_luong_mua
+                kho.save()
+
+            # 3. Chốt đơn: Đổi trạng thái và cập nhật ngày đặt
+            don_hang.trang_thai = "Chờ xác nhận"
+            don_hang.save()
+
+            messages.success(request, "🎉 Đặt hàng thành công! Mã đơn hàng của bạn là #" + str(don_hang.id))
+            return redirect('history') # Chuyển sang trang Lịch sử
+            
+        except DonHang.DoesNotExist:
+            messages.error(request, "Không tìm thấy giỏ hàng để thanh toán.")
+            return redirect('cart')
+            
+    return redirect('cart')
+
+@login_required(login_url='login')
+def lich_su_don_hang(request):
+    khach_hang, created = KhachHang.objects.get_or_create(user=request.user)
+    
+    # Lấy các đơn đã đặt (Khác trạng thái 'Giỏ hàng'), sắp xếp đơn mới nhất lên đầu (-ngay_dat)
+    danh_sach_don = DonHang.objects.filter(khach_hang=khach_hang).exclude(trang_thai="Giỏ hàng").order_by('-ngay_dat_hang')
+    
+    return render(request, 'shop_app/history.html', {'danh_sach_don': danh_sach_don})

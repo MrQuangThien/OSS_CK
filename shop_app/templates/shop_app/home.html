@@ -24,7 +24,7 @@
     .btn-banner { background: #ff4757; color: white; padding: 10px 20px; border-radius: 5px; display: inline-block; margin-top: 10px; text-decoration: none; pointer-events: auto; transition: background 0.3s; }
     .btn-banner:hover { background: #e84118; color: white; }
     
-    .section-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-left: 4px solid #0d6efd; padding-left: 10px; }
+    .section-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-left: 4px solid #0d6efd; padding-left: 10px; display: flex; align-items: baseline;}
     .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
     
     /* ========================================= */
@@ -100,7 +100,12 @@
 
 <div id="products">
     <div class="section-title">
-        <span>TẤT CẢ SẢN PHẨM</span>
+        {% if tu_khoa %}
+            <span>KẾT QUẢ TÌM KIẾM CHO: <span class="text-primary">"{{ tu_khoa }}"</span></span>
+            <span style="font-size: 14px; font-weight: normal; color: #666; margin-left: 10px;">({{ list_san_pham|length }} sản phẩm)</span>
+        {% else %}
+            <span>SẢN PHẨM MỚI NHẤT</span>
+        {% endif %}
     </div>
 
     <div class="product-grid">
@@ -122,7 +127,7 @@
                 {{ sp.loai_hang.ten_loai }}
             </div>
             <h3 class="card-title">
-                <a href="/chi-tiet/">{{ sp.ten_san_pham }}</a>
+                <a href="/chi-tiet/{{ sp.id }}/">{{ sp.ten_san_pham }}</a>
             </h3>
             <div class="card-price">
                 {{ sp.gia_ban|floatformat:0 }} đ
@@ -131,8 +136,12 @@
         </div>
         {% empty %}
         <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #777;">
-            <i class="fa-regular fa-face-frown-open" style="font-size: 50px; margin-bottom: 15px;"></i>
-            <h3>Bạn chưa có sản phẩm nào trong cơ sở dữ liệu! Hãy vào trang Admin để thêm nhé.</h3>
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 50px; margin-bottom: 15px; color: #ccc;"></i>
+            {% if tu_khoa %}
+                <h3>Không tìm thấy sản phẩm nào phù hợp với "{{ tu_khoa }}"</h3>
+            {% else %}
+                <h3>Bạn chưa có sản phẩm nào trong cơ sở dữ liệu! Hãy vào trang Admin để thêm nhé.</h3>
+            {% endif %}
         </div>
         {% endfor %}
     </div>

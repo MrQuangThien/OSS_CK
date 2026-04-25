@@ -126,9 +126,12 @@
                 </div>
                 <div class="text-end text-muted mt-1" style="font-size: 0.85rem;">(Đã bao gồm VAT)</div>
                 
-                <button class="btn-checkout">
-                    TIẾN HÀNH ĐẶT HÀNG <i class="fa-solid fa-chevron-right ms-2 fs-6"></i>
-                </button>
+               <form action="{% url 'checkout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-checkout">
+                        TIẾN HÀNH ĐẶT HÀNG <i class="fa-solid fa-chevron-right ms-2 fs-6"></i>
+                    </button>
+                </form>
                 
                 <div class="mt-4 d-flex justify-content-center gap-2">
                     <img src="https://cdn-icons-png.flaticon.com/32/196/196578.png" alt="Visa" style="height: 24px;">
