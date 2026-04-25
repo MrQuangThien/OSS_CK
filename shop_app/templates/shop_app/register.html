@@ -1,0 +1,60 @@
+{% extends 'shop_app/base.html' %}
+
+{% block content %}
+<style>
+    /* Dùng chung CSS với trang Login cho đồng bộ */
+    .login-wrapper { min-height: 75vh; display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+    .login-card { border: none; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; display: flex; max-width: 600px; width: 100%; background: #fff; }
+    .login-form-container { width: 100%; padding: 40px 50px; }
+    .form-control { border-radius: 8px; padding: 12px 15px; border: 1px solid #e0e0e0; background: #f8f9fa; }
+    .btn-login { background: #0d6efd; color: white; padding: 14px; border-radius: 8px; font-weight: bold; width: 100%; border: none; transition: all 0.3s ease; }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-form-container">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold" style="color: #212529;">Đăng Ký Tài Khoản</h2>
+                <p class="text-muted">Trở thành thành viên của ComputerShop</p>
+            </div>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form action="{% url 'register' %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tên đăng nhập</label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Email</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Mật khẩu</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Xác nhận mật khẩu</label>
+                    <input type="password" name="confirm_password" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn-login mb-3">TẠO TÀI KHOẢN</button>
+                
+                <div class="text-center mt-3">
+                    Đã có tài khoản? <a href="{% url 'login' %}" class="text-decoration-none fw-bold" style="color: #0d6efd;">Đăng nhập</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ComputerShop - Máy Tính & Phụ Kiện Chính Hãng</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f6f8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .search-box {
+            display: flex;
+            flex: 1;
+            margin: 0 40px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .search-box button {
+            padding: 10px 20px;
+            background: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: #212529;
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .footer-col h3 {
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+        }
+
+        .copyright {
+            text-align: center;
+            border-top: 1px solid #444;
+            padding-top: 20px;
+            color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="container top-bar">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-laptop-code"></i> ComputerShop
+            </a>
+
+            <form action="/" method="get" class="search-box">
+                <input type="text" name="keyword" placeholder="Tìm kiếm sản phẩm, thương hiệu..."
+                    value="{{ request.GET.keyword }}">
+                <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+
+            <div class="user-actions">
+                <a href="{% url 'cart' %}" class="action-item">
+                    <i class="fa-solid fa-cart-shopping"></i> <span>Giỏ hàng</span>
+                </a>
+
+                {% if not user.is_authenticated %}
+                <div style="display: flex; gap: 20px;">
+                    <a href="dang-nhap/" class="action-item">
+                        <i class="fa-regular fa-user"></i> <span>Đăng nhập / Đăng ký </span>
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <div class="user-dropdown action-item">
+                    <div class="user-info" style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-circle-user" style="font-size: 24px; color: #0d6efd;"></i>
+                        <div>
+                            <div style="font-size: 11px; color: #888;">Xin chào,</div>
+                            <div class="user-name">{{ user.username }}</div>
+                        </div>
+                        <form action="{% url 'logout' %}" method="post" style="margin: 0; margin-left: 10px;">
+                            {% csrf_token %}
+                            <button type="submit" style="background:none; border:none; color: #dc3545; cursor:pointer;"
+                                title="Đăng xuất">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top: 20px;">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>Về ComputerShop</h3>
+                    <p>Hệ thống bán lẻ máy tính uy tín hàng đầu.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Chính sách</h3>
+                    <ul>
+                        <li><a href="#">Bảo hành</a></li>
+                        <li><a href="#">Đổi trả</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Mua hàng</a></li>
+                        <li><a href="#">Tư vấn</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Kết nối</h3>
+                    <div style="font-size: 24px; display: flex; gap: 15px;">
+                        <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">© 2026 ComputerShop. All rights reserved.</div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,75 @@
+{% extends 'shop_app/base.html' %}
+
+{% block content %}
+<style>
+    /* (Giữ nguyên phần CSS style cũ của bạn ở đây) */
+    .product-image-container { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+    .product-info-container { padding: 10px 20px; }
+    .price-tag { font-size: 2.5rem; color: #e30019; font-weight: 800; }
+    .btn-add-cart { background: #0d6efd; color: white; padding: 14px 25px; border-radius: 8px; font-weight: bold; transition: all 0.3s ease; width: 100%; border: none; font-size: 1.1rem; }
+    .btn-add-cart:hover { background: #0b5ed7; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3); }
+    .qty-input { border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; text-align: center; width: 90px; font-weight: bold; font-size: 1.1rem; }
+    .promo-box { border: 1px dashed #dc3545; background-color: #fffafb; border-radius: 8px; padding: 15px; }
+    
+    /* CSS động cho Trạng thái Kho */
+    .status-in-stock { background: #e8f5e9; color: #2e7d32; padding: 6px 15px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; display: inline-block; border: 1px solid #c8e6c9; }
+    .status-out-stock { background: #ffebee; color: #c62828; padding: 6px 15px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; display: inline-block; border: 1px solid #ffcdd2; }
+</style>
+
+<div class="row mt-4 mb-5">
+    <div class="col-md-5 mb-4">
+        <div class="product-image-container">
+            {% if sp.hinh_anh %}
+                <img src="{{ sp.hinh_anh.url }}" alt="{{ sp.ten_san_pham }}" class="img-fluid rounded" style="max-height: 400px; object-fit: contain;">
+            {% else %}
+                <img src="https://via.placeholder.com/500x400?text=Chua+co+anh" alt="No image" class="img-fluid rounded">
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="product-info-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb" style="font-size: 0.9rem;">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted">{{ sp.loai_hang.ten_loai }}</a></li>
+                    <li class="breadcrumb-item active fw-bold text-dark">{{ sp.ten_san_pham }}</li>
+                </ol>
+            </nav>
+
+            <h1 class="fw-bold mb-3" style="font-size: 2.2rem; color: #212529;">{{ sp.ten_san_pham }}</h1>
+            
+            <div class="mb-4">
+                {% if ton_kho > 0 %}
+                    <span class="status-in-stock"><i class="fa-solid fa-check-circle me-1"></i> Còn hàng ({{ ton_kho }} sản phẩm)</span>
+                {% else %}
+                    <span class="status-out-stock"><i class="fa-solid fa-xmark-circle me-1"></i> Tạm hết hàng</span>
+                {% endif %}
+            </div>
+
+            <div class="price-tag mb-4">{{ sp.gia_ban|floatformat:0 }} đ</div>
+
+            <div class="promo-box mb-4">
+                <h6 class="fw-bold text-danger mb-3"><i class="fa-solid fa-gift me-2"></i>ƯU ĐÃI ĐẶC BIỆT</h6>
+                <ul class="mb-0 text-dark" style="font-size: 0.95rem; line-height: 1.8;">
+                    <li><i class="fa-solid fa-check text-success me-2"></i> Tặng Balo Gaming cao cấp trị giá 500.000đ</li>
+                    <li><i class="fa-solid fa-check text-success me-2"></i> Miễn phí vệ sinh máy trọn đời tại Cửa hàng</li>
+                </ul>
+            </div>
+
+           <form action="{% url 'add_to_cart' sp.id %}" method="POST" class="d-flex gap-3 mt-4 align-items-center">
+                {% csrf_token %}
+                <div class="d-flex align-items-center bg-white rounded-3 p-1 border">
+                    <span class="ms-3 me-2 fw-bold text-muted" style="font-size: 0.9rem;">Số lượng:</span>
+                    <input type="number" name="so_luong" value="1" min="1" max="{{ ton_kho }}" class="qty-input border-0 bg-transparent" {% if ton_kho == 0 %}disabled{% endif %}>
+                </div>
+                <div class="flex-grow-1">
+                    <button type="submit" class="btn-add-cart" {% if ton_kho == 0 %}disabled style="background-color: #6c757d; cursor: not-allowed;"{% endif %}>
+                        <i class="fa-solid fa-cart-plus me-2"></i> THÊM VÀO GIỎ HÀNG
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

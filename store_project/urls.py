@@ -16,7 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from shop_app import views # Kéo file views.py vừa viết vào đây
+from django.conf import settings # Dòng import settings bị thiếu
+from django.conf.urls.static import static # Dòng import cấu hình static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.trang_chu, name='home'), # Đường dẫn rỗng (Trang chủ) sẽ gọi hàm trang_chu
+
+    path('chi-tiet/<int:sp_id>/', views.chi_tiet_sp, name='detail'),
+    path('dang-nhap/', views.dang_nhap, name='login'),
+    path('dang-ky/', views.dang_ky, name='register'),
+
+    path('dang-xuat/', views.dang_xuat, name='logout'),
+
+    path('them-vao-gio/<int:sp_id>/', views.them_vao_gio, name='add_to_cart'),
+    path('gio-hang/', views.xem_gio_hang, name='cart'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
