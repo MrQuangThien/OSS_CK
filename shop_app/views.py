@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import get_object_or_404
-from .forms import SanPhamForm, LoaiHangForm, KhoHangForm
+# from .forms import SanPhamForm, LoaiHangForm, KhoHangForm
 
 def trang_chu(request):
     # Lấy TẤT CẢ loại hàng ra để đưa vào Menu bên trái
