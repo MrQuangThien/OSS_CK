@@ -245,3 +245,85 @@ def admin_dashboard(request):
         'don_hang_moi': don_hang_moi
     }
     return render(request, 'shop_app/admin_panel/dashboard.html', context)
+    
+@staff_member_required(login_url='login')
+def admin_kho_hang(request):
+    # Lấy toàn bộ kho hàng, dùng select_related để truy vấn nhanh tên sản phẩm
+    list_kho = KhoHang.objects.select_related('san_pham').all().order_by('so_luong_ton')
+    
+    return render(request, 'shop_app/admin_panel/inventory_list.html', {'list_kho': list_kho})
+
+# CẬP NHẬT SỐ LƯỢNG ĐƠN LẺ (CÓ TỰ ĐỘNG LƯU LỊCH SỬ)
+@staff_member_required(login_url='login')
+def admin_cap_nhat_kho(request, kho_id):
+    kho = get_object_or_404(KhoHang, id=kho_id)
+    # 1. Lưu lại số lượng cũ trước khi thay đổi để tính chênh lệch
+    so_luong_cu = kho.so_luong_ton 
+
+    if request.method == 'POST':
+        form = KhoHangForm(request.POST, instance=kho)
+        if form.is_valid():
+            # 2. Lưu số lượng mới vào Database
+            kho_updated = form.save()
+            
+            # 3. Tính toán xem là Nhập thêm hay Xuất đi
+            chenh_lech = kho_updated.so_luong_ton - so_luong_cu
+            
+            # 4. Nếu có sự thay đổi về số lượng -> Tự động tạo Phiếu ghi nhận lịch sử
+            if chenh_lech != 0:
+                hanh_dong = "Nhập thêm" if chenh_lech > 0 else "Xuất giảm/Hao hụt"
+                phieu = PhieuNhap.objects.create(
+                    nguoi_nhap=request.user, 
+                    ghi_chu=f"Hệ thống tự động: {hanh_dong} {abs(chenh_lech)} chiếc"
+                )
+                ChiTietPhieuNhap.objects.create(
+                    phieu_nhap=phieu, 
+                    san_pham=kho.san_pham, 
+                    so_luong_nhap=chenh_lech # Lưu số âm nếu là xuất kho
+                )
+
+            messages.success(request, f"📦 Đã điều chỉnh tồn kho cho '{kho.san_pham.ten_san_pham}' thành công!")
+            return redirect('admin_inventory')
+    else:
+        form = KhoHangForm(instance=kho)
+        
+    context = {'form': form, 'kho': kho, 'title': 'Cập Nhật Kho Hàng'}
+    return render(request, 'shop_app/admin_panel/inventory_form.html', context)
+
+@staff_member_required(login_url='login')
+def admin_nhap_hang_loat(request):
+    if request.method == 'POST':
+        # Lấy danh sách ID sản phẩm và số lượng tương ứng từ form gửi lên
+        san_pham_ids = request.POST.getlist('san_pham_id[]')
+        so_luongs = request.POST.getlist('so_luong[]')
+        ghi_chu = request.POST.get('ghi_chu', '')
+
+        if san_pham_ids and so_luongs:
+            # Tạo 1 Phiếu nhập mới
+            phieu = PhieuNhap.objects.create(nguoi_nhap=request.user, ghi_chu=ghi_chu)
+            
+            # Chạy vòng lặp để ghép cặp (Sản phẩm - Số lượng)
+            for sp_id, sl in zip(san_pham_ids, so_luongs):
+                if sl and int(sl) > 0:
+                    sp = SanPham.objects.get(id=sp_id)
+                    # 1. Lưu vào Chi tiết phiếu nhập (Lịch sử)
+                    ChiTietPhieuNhap.objects.create(phieu_nhap=phieu, san_pham=sp, so_luong_nhap=int(sl))
+                    
+                    # 2. Cộng dồn vào Kho hàng hiện tại
+                    kho, created = KhoHang.objects.get_or_create(san_pham=sp)
+                    kho.so_luong_ton += int(sl)
+                    kho.save()
+                    
+            messages.success(request, f"📦 Đã nhập lô hàng mới (Phiếu #{phieu.id}) thành công!")
+            return redirect('admin_import_history') # Nhập xong chuyển qua trang Lịch sử
+
+    # Lấy danh sách sản phẩm để hiển thị trong ô Dropdown
+    danh_sach_sp = SanPham.objects.all()
+    return render(request, 'shop_app/admin_panel/import_bulk.html', {'danh_sach_sp': danh_sach_sp})
+
+
+# 2. HÀM HIỂN THỊ LỊCH SỬ NHẬP
+@staff_member_required(login_url='login')
+def admin_lich_su_nhap(request):
+    list_phieu = PhieuNhap.objects.all().order_by('-ngay_nhap')
+    return render(request, 'shop_app/admin_panel/import_history.html', {'list_phieu': list_phieu})
