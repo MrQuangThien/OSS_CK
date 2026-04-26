@@ -36,6 +36,10 @@ urlpatterns = [
     path('lich-su/', views.lich_su_don_hang, name='history'),
     # URL DÀNH CHO ADMIN
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-panel/kho-hang/', views.admin_kho_hang, name='admin_inventory'),
+    path('admin-panel/kho-hang/cap-nhat/<int:kho_id>/', views.admin_cap_nhat_kho, name='admin_update_inventory'),
+    path('admin-panel/kho-hang/nhap-loat/', views.admin_nhap_hang_loat, name='admin_import_bulk'),
+    path('admin-panel/kho-hang/lich-su/', views.admin_lich_su_nhap, name='admin_import_history'),
 ]
 
 if settings.DEBUG:
