@@ -327,3 +327,114 @@ def admin_nhap_hang_loat(request):
 def admin_lich_su_nhap(request):
     list_phieu = PhieuNhap.objects.all().order_by('-ngay_nhap')
     return render(request, 'shop_app/admin_panel/import_history.html', {'list_phieu': list_phieu})
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+# Chỉ tài khoản có cờ "is_staff=True" (tài khoản Admin/Nhân viên) mới vào được
+@staff_member_required(login_url='login')
+def admin_quan_ly_don_hang(request):
+    # Lấy tất cả đơn hàng trừ những đơn đang là "Giỏ hàng" (chưa thanh toán)
+    # Sắp xếp đơn mới nhất (id giảm dần) lên đầu
+    danh_sach_don = DonHang.objects.exclude(trang_thai="Giỏ hàng").order_by('-id')
+    
+    context = {
+        'danh_sach_don': danh_sach_don
+    }
+    return render(request, 'shop_app/admin_panel/order_list.html', context)
+
+@staff_member_required(login_url='login')
+def admin_chi_tiet_don_hang(request, don_id):
+    # Lấy thông tin đơn hàng và các sản phẩm bên trong
+    don_hang = get_object_or_404(DonHang, id=don_id)
+    chi_tiet_list = ChiTietDonHang.objects.filter(don_hang=don_hang)
+
+    # Nếu Admin bấm nút Cập nhật trạng thái
+    if request.method == 'POST':
+        trang_thai_moi = request.POST.get('trang_thai')
+        don_hang.trang_thai = trang_thai_moi
+        don_hang.save()
+        messages.success(request, f"✅ Đã cập nhật đơn hàng #{don_id} thành '{trang_thai_moi}'!")
+        return redirect('admin_order_detail', don_id=don_id)
+
+    context = {
+        'don_hang': don_hang,
+        'chi_tiet_list': chi_tiet_list,
+    }
+    return render(request, 'shop_app/admin_panel/order_detail.html', context)
+# DANH SÁCH LOẠI HÀNG
+@staff_member_required(login_url='login')
+def admin_loai_hang(request):
+    list_loai = LoaiHang.objects.all().order_by('-id')
+    return render(request, 'shop_app/admin_panel/category_list.html', {'list_loai': list_loai})
+
+# THÊM LOẠI HÀNG
+@staff_member_required(login_url='login')
+def admin_them_loai(request):
+    if request.method == 'POST':
+        form = LoaiHangForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "🎉 Đã thêm loại hàng mới!")
+            return redirect('admin_categories')
+    else:
+        form = LoaiHangForm()
+    return render(request, 'shop_app/admin_panel/category_form.html', {'form': form, 'title': 'Thêm Loại Hàng'})
+
+# XÓA LOẠI HÀNG (Lưu ý: Xóa loại hàng có thể ảnh hưởng đến sản phẩm thuộc loại đó)
+@staff_member_required(login_url='login')
+def admin_xoa_loai(request, loai_id):
+    loai = get_object_or_404(LoaiHang, id=loai_id)
+    # Kiểm tra xem có sản phẩm nào đang thuộc loại này không
+    if SanPham.objects.filter(loai_hang=loai).exists():
+        messages.error(request, f"❌ Không thể xóa! Hiện đang có sản phẩm thuộc loại '{loai.ten_loai}'.")
+    else:
+        loai.delete()
+        messages.success(request, "🗑️ Đã xóa loại hàng thành công.")
+    return redirect('admin_categories')
+# CHỈ DÀNH CHO ADMIN / NHÂN VIÊN
+@staff_member_required(login_url='login')
+def admin_san_pham(request):
+    # Lấy toàn bộ sản phẩm, sắp xếp sản phẩm mới thêm lên đầu tiên
+    danh_sach_sp = SanPham.objects.all().order_by('-id')
+    
+    context = {
+        'danh_sach_sp': danh_sach_sp
+    }
+    return render(request, 'shop_app/admin_panel/product_list.html', context)
+
+@staff_member_required(login_url='login')
+def admin_them_san_pham(request):
+    if request.method == 'POST':
+        # Chú ý có request.FILES vì form có upload ảnh
+        form = SanPhamForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "🎉 Đã thêm sản phẩm mới thành công!")
+            return redirect('admin_products')
+    else:
+        form = SanPhamForm()
+        
+    return render(request, 'shop_app/admin_panel/product_form.html', {'form': form, 'title': 'Thêm Sản Phẩm Mới'})
+
+@staff_member_required(login_url='login')
+def admin_sua_san_pham(request, sp_id):
+    sp = get_object_or_404(SanPham, id=sp_id)
+    if request.method == 'POST':
+        form = SanPhamForm(request.POST, request.FILES, instance=sp)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ Đã cập nhật sản phẩm thành công!")
+            return redirect('admin_products')
+    else:
+        # Load dữ liệu cũ của sản phẩm vào form
+        form = SanPhamForm(instance=sp)
+        
+    return render(request, 'shop_app/admin_panel/product_form.html', {'form': form, 'title': 'Cập Nhật Sản Phẩm'})
+
+@staff_member_required(login_url='login')
+def admin_xoa_san_pham(request, sp_id):
+    sp = get_object_or_404(SanPham, id=sp_id)
+    ten_sp = sp.ten_san_pham
+    sp.delete()
+    messages.success(request, f"🗑️ Đã xóa sản phẩm '{ten_sp}' khỏi hệ thống!")
+    return redirect('admin_products')
