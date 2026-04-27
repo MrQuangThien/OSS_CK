@@ -40,6 +40,18 @@ urlpatterns = [
     path('admin-panel/kho-hang/cap-nhat/<int:kho_id>/', views.admin_cap_nhat_kho, name='admin_update_inventory'),
     path('admin-panel/kho-hang/nhap-loat/', views.admin_nhap_hang_loat, name='admin_import_bulk'),
     path('admin-panel/kho-hang/lich-su/', views.admin_lich_su_nhap, name='admin_import_history'),
+
+    path('admin-panel/loai-hang/', views.admin_loai_hang, name='admin_categories'),
+    path('admin-panel/loai-hang/them/', views.admin_them_loai, name='admin_add_category'),
+    path('admin-panel/loai-hang/xoa/<int:loai_id>/', views.admin_xoa_loai, name='admin_delete_category'),
+
+    
+path('admin-panel/don-hang/', views.admin_quan_ly_don_hang, name='admin_orders'),
+path('admin-panel/don-hang/<int:don_id>/', views.admin_chi_tiet_don_hang, name='admin_order_detail'),
+path('admin-panel/san-pham/', views.admin_san_pham, name='admin_products'),
+path('admin-panel/san-pham/them/', views.admin_them_san_pham, name='admin_add_product'),
+path('admin-panel/san-pham/sua/<int:sp_id>/', views.admin_sua_san_pham, name='admin_edit_product'),
+path('admin-panel/san-pham/xoa/<int:sp_id>/', views.admin_xoa_san_pham, name='admin_delete_product'),
 ]
 
 if settings.DEBUG:
