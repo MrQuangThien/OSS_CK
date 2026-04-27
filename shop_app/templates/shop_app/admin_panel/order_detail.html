@@ -1,0 +1,87 @@
+{% extends 'shop_app/admin_panel/base_admin.html' %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i>Chi tiết Đơn hàng #{{ don_hang.id }}</h2>
+    <a href="{% url 'admin_orders' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-2"></i>Quay lại danh sách</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card card-admin mb-4">
+            <div class="card-header bg-white fw-bold py-3">Thông tin Khách hàng</div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-3 text-muted">Tên tài khoản:</div>
+                    <div class="col-sm-9 fw-bold">{{ don_hang.khach_hang.user.username }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 text-muted">Email liên hệ:</div>
+                    <div class="col-sm-9">{{ don_hang.khach_hang.user.email }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3 text-muted">Ngày đặt hàng:</div>
+                    <div class="col-sm-9">{{ don_hang.ngay_dat_hang|date:"d/m/Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-admin">
+            <div class="card-header bg-white fw-bold py-3">Danh sách Sản phẩm</div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Sản phẩm</th>
+                            <th class="text-center">Đơn giá</th>
+                            <th class="text-center">Số lượng</th>
+                            <th class="text-end pe-4">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in chi_tiet_list %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold">{{ item.san_pham.ten_san_pham }}</div>
+                            </td>
+                            <td class="text-center">{{ item.don_gia|floatformat:0 }} đ</td>
+                            <td class="text-center fw-bold">{{ item.so_luong_mua }}</td>
+                            <td class="text-end pe-4 fw-bold text-danger">{% widthratio item.don_gia 1 item.so_luong_mua %} đ</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card card-admin bg-light mb-4">
+            <div class="card-body text-center py-4">
+                <div class="text-muted mb-2">Tổng giá trị đơn hàng</div>
+                <h2 class="text-danger fw-bold mb-0">{{ don_hang.tong_tien|floatformat:0 }} đ</h2>
+            </div>
+        </div>
+
+        <div class="card card-admin border-primary">
+            <div class="card-header bg-primary text-white fw-bold py-3"><i class="fa-solid fa-rotate me-2"></i>Cập nhật Trạng thái</div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Trạng thái hiện tại:</label>
+                        <select name="trang_thai" class="form-select form-select-lg fw-bold mb-3">
+                            <option value="Chờ xác nhận" {% if don_hang.trang_thai == 'Chờ xác nhận' %}selected{% endif %}>Chờ xác nhận</option>
+                            <option value="Đã xác nhận" {% if don_hang.trang_thai == 'Đã xác nhận' %}selected{% endif %}>Đã xác nhận</option>
+                            <option value="Đang giao hàng" {% if don_hang.trang_thai == 'Đang giao hàng' %}selected{% endif %}>Đang giao hàng</option>
+                            <option value="Hoàn thành" {% if don_hang.trang_thai == 'Hoàn thành' %}selected{% endif %}>Hoàn thành</option>
+                            <option value="Đã hủy" {% if don_hang.trang_thai == 'Đã hủy' %}selected{% endif %}>Đã hủy</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm">LƯU TRẠNG THÁI</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
