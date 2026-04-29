@@ -1,0 +1,67 @@
+{% extends 'shop_app/admin_panel/base_admin.html' %}
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold"><i class="fa-solid fa-truck-ramp-box me-2 text-primary"></i>Nhập hàng loạt</h2>
+        <p class="text-muted">Thêm nhiều sản phẩm vào kho cùng một lúc.</p>
+    </div>
+</div>
+
+<div class="card card-admin p-4">
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="fw-bold">Ghi chú phiếu nhập (Tên nhà cung cấp, đợt hàng...)</label>
+            <input type="text" name="ghi_chu" class="form-control" placeholder="Ví dụ: Nhập hàng từ NPP Asus đợt 1">
+        </div>
+
+        <table class="table table-bordered mt-4" id="importTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Chọn Sản phẩm</th>
+                    <th width="200">Số lượng nhập</th>
+                    <th width="80" class="text-center">Xóa</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-items">
+                <tr>
+                    <td>
+                        <select name="san_pham_id[]" class="form-select" required>
+                            <option value="">-- Chọn sản phẩm --</option>
+                            {% for sp in danh_sach_sp %}
+                                <option value="{{ sp.id }}">{{ sp.ten_san_pham }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="so_luong[]" class="form-control" min="1" required placeholder="Nhập SL">
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()"><i class="fa-solid fa-xmark"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button type="button" class="btn btn-outline-primary btn-sm fw-bold" onclick="addRow()">
+            <i class="fa-solid fa-plus me-1"></i> THÊM DÒNG MỚI
+        </button>
+
+        <hr class="my-4">
+        <div class="text-end">
+            <button type="submit" class="btn btn-success px-4 fw-bold shadow-sm"><i class="fa-solid fa-check-double me-2"></i> HOÀN TẤT NHẬP HÀNG</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function addRow() {
+        var tbody = document.getElementById('tbody-items');
+        var firstRow = tbody.querySelector('tr');
+        var newRow = firstRow.cloneNode(true);
+        // Reset lại ô nhập số lượng về rỗng
+        newRow.querySelector('input[type="number"]').value = ''; 
+        tbody.appendChild(newRow);
+    }
+</script>
+{% endblock %}

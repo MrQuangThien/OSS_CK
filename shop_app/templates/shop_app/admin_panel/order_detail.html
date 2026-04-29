@@ -1,0 +1,137 @@
+{% extends 'shop_app/admin_panel/base_admin.html' %}
+{% load humanize %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i>Chi tiết Đơn hàng #{{ don_hang.id }}</h2>
+    <a href="{% url 'admin_orders' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-2"></i>Quay lại danh sách</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card card-admin mb-4 shadow-sm border-0">
+            <div class="card-header bg-white fw-bold py-3 text-uppercase">Thông tin Khách hàng</div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-3 text-muted">Họ và tên:</div>
+                    <div class="col-sm-9 fw-bold text-dark">{{ don_hang.khach_hang.ho_ten|default:don_hang.khach_hang.user.username }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 text-muted">Số điện thoại:</div>
+                    <div class="col-sm-9 fw-bold text-primary">{{ don_hang.khach_hang.so_dien_thoai|default:"Chưa cung cấp" }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 text-muted">Địa chỉ giao:</div>
+                    <div class="col-sm-9">{{ don_hang.khach_hang.dia_chi|default:"Chưa cung cấp" }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3 text-muted">Ngày đặt hàng:</div>
+                    <div class="col-sm-9">{{ don_hang.ngay_dat_hang|date:"d/m/Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-admin shadow-sm border-0">
+            <div class="card-header bg-white fw-bold py-3 text-uppercase">Danh sách Sản phẩm</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4 py-3">Sản phẩm</th>
+                                <th class="text-center py-3">Đơn giá</th>
+                                <th class="text-center py-3">Số lượng</th>
+                                <th class="text-end pe-4 py-3">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in chi_tiet_list %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-3 py-2">
+                                        <div style="width: 50px; height: 50px; flex-shrink: 0; border-radius: 8px; border: 1px solid #eaeaea; background: #fff; padding: 3px;">
+                                            <img src="{% if item.san_pham.hinh_anh %}{{ item.san_pham.hinh_anh.url }}{% else %}https://via.placeholder.com/50{% endif %}" 
+                                                 alt="{{ item.san_pham.ten_san_pham }}" 
+                                                 style="width: 100%; height: 100%; object-fit: contain;">
+                                        </div>
+                                        <div class="fw-bold text-dark">{{ item.san_pham.ten_san_pham }}</div>
+                                    </div>
+                                </td>
+                                <td class="text-center text-muted">{{ item.don_gia|floatformat:0|intcomma }} đ</td>
+                                <td class="text-center fw-bold fs-6">{{ item.so_luong_mua }}</td>
+                                <td class="text-end pe-4 fw-bold text-danger">
+                                    {% widthratio item.don_gia 1 item.so_luong_mua as subtotal %}
+                                    {{ subtotal|intcomma }} đ
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card card-admin bg-light mb-4 border-0 shadow-sm">
+            <div class="card-body text-center py-4">
+                <div class="text-muted mb-2 text-uppercase fw-bold" style="font-size: 0.85rem;">Tổng giá trị đơn hàng</div>
+                <h2 class="text-danger fw-bold mb-0">{{ don_hang.tong_tien|floatformat:0|intcomma }} đ</h2>
+            </div>
+        </div>
+
+        <div class="card card-admin border-primary shadow-sm">
+            <div class="card-header bg-primary text-white fw-bold py-3 text-uppercase">
+                <i class="fa-solid fa-rotate me-2"></i>Cập nhật Trạng thái
+            </div>
+            <div class="card-body bg-white">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold">TRẠNG THÁI XỬ LÝ ĐƠN HÀNG:</label>
+                        <select name="trang_thai" class="form-select form-select-lg fw-bold border-primary shadow-none">
+                            
+                            {% if don_hang.trang_thai == 'Chờ xác nhận' %}
+                                <option value="Chờ xác nhận" selected> Chờ xác nhận</option>
+                                <option value="Đang chuẩn bị hàng"> Đang chuẩn bị hàng</option>
+                                <option value="Đang giao hàng">Đang giao hàng </option>
+                                <option value="Đã hủy"> Đã hủy</option>
+
+                            {% elif don_hang.trang_thai == 'Đang chuẩn bị hàng' %}
+                                <option value="Đang chuẩn bị hàng" selected>Đang chuẩn bị hàng</option>
+                                <option value="Đang giao hàng">Đang giao hàng </option>
+                                <option value="Đã hủy">Đã hủy</option>
+
+                            {% elif don_hang.trang_thai == 'Đang giao hàng' %}
+                                <option value="Đang giao hàng" selected>Đang giao hàng </option>
+                                <option value="Hoàn thành">Hoàn thành (Đã nhận hàng)</option>
+                                <option value="Giao thất bại / Hoàn hàng">Giao thất bại / Hoàn trả hàng</option>
+
+                            {% elif don_hang.trang_thai == 'Hoàn thành' %}
+                                <option value="Hoàn thành" selected>Hoàn thành (Đã nhận hàng)</option>
+                                
+                            {% elif don_hang.trang_thai == 'Giao thất bại / Hoàn hàng' %}
+                                <option value="Giao thất bại / Hoàn hàng" selected>Giao thất bại / Hoàn trả hàng</option>
+                                
+                            {% elif don_hang.trang_thai == 'Đã hủy' %}
+                                <option value="Đã hủy" selected>Đã hủy</option>
+                            {% endif %}
+                            
+                        </select>
+                    </div>
+
+                    {% if don_hang.trang_thai == 'Hoàn thành' or don_hang.trang_thai == 'Đã hủy' or don_hang.trang_thai == 'Giao thất bại / Hoàn hàng' %}
+                        <button type="button" class="btn btn-secondary w-100 fw-bold py-3 shadow-sm" style="border-radius: 8px; cursor: not-allowed;" disabled>
+                            <i class="fa-solid fa-lock me-2"></i>ĐƠN HÀNG ĐÃ ĐÓNG
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-3 shadow-sm" style="border-radius: 8px;">
+                            <i class="fa-solid fa-floppy-disk me-2"></i>LƯU BƯỚC TIẾP THEO
+                        </button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

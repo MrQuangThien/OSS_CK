@@ -1,0 +1,107 @@
+{% extends 'shop_app/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<style>
+    .checkout-card { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: none; }
+    .section-title { font-size: 1.2rem; font-weight: bold; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; }
+    .form-control { border-radius: 8px; padding: 10px 15px; }
+    .order-summary { background: #f8f9fa; border-radius: 12px; padding: 25px; }
+</style>
+
+<div class="row mt-4 mb-5">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold"><i class="fa-solid fa-credit-card text-primary me-2"></i>Thanh toán đơn hàng</h2>
+        <p class="text-muted">Vui lòng kiểm tra lại thông tin giao hàng trước khi xác nhận.</p>
+    </div>
+
+    <div class="col-lg-7 mb-4">
+        <div class="card checkout-card p-4">
+            <h4 class="section-title">Thông tin giao hàng</h4>
+            
+            <form method="POST" id="checkoutForm">
+                {% csrf_token %}
+                
+                {% if mua_ngay_id %}
+                    <input type="hidden" name="mua_ngay_id" value="{{ mua_ngay_id }}">
+                {% endif %}
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Họ và tên người nhận</label>
+                    <input type="text" class="form-control" name="ho_ten" value="{{ khach_hang.ho_ten|default:'' }}" required placeholder="Nhập họ tên...">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số điện thoại</label>
+                    <input type="text" class="form-control" name="so_dien_thoai" value="{{ khach_hang.so_dien_thoai|default:'' }}" required placeholder="Nhập số điện thoại...">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Địa chỉ giao hàng chi tiết</label>
+                    <textarea class="form-control" name="dia_chi" rows="3" required placeholder="Nhập số nhà, tên đường, phường/xã...">{{ khach_hang.dia_chi|default:'' }}</textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Phương thức thanh toán</label>
+                    <div class="form-check border rounded p-3 bg-light">
+                        <input class="form-check-input ms-1" type="radio" name="payment_method" id="cod" checked>
+                        <label class="form-check-label ms-2 fw-semibold text-dark" for="cod">
+                            <i class="fa-solid fa-money-bill-wave text-success me-2"></i> Thanh toán khi nhận hàng (COD)
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="order-summary shadow-sm">
+            <h4 class="section-title">Tóm tắt đơn hàng</h4>
+            
+            <div class="cart-items-list mb-4" style="max-height: 350px; overflow-y: auto; padding-right: 5px;">
+                {% for item in chi_tiet_list %}
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
+                    
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 55px; height: 55px; flex-shrink: 0; border-radius: 8px; border: 1px solid #eee; background: #fff; padding: 3px;">
+                            <img src="{% if item.san_pham.hinh_anh %}{{ item.san_pham.hinh_anh.url }}{% else %}https://via.placeholder.com/55{% endif %}" 
+                                 alt="{{ item.san_pham.ten_san_pham }}" 
+                                 style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        
+                        <div>
+                            <div class="fw-bold text-dark text-truncate" style="max-width: 160px;" title="{{ item.san_pham.ten_san_pham }}">
+                                {{ item.san_pham.ten_san_pham }}
+                            </div>
+                            <div class="small text-muted">Số lượng: {{ item.so_luong_mua }}</div>
+                        </div>
+                    </div>
+
+                    <div class="fw-bold text-end">
+                        {% widthratio item.don_gia 1 item.so_luong_mua as total_item %}
+                        {{ total_item|intcomma }} ₫
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="d-flex justify-content-between mb-2 mt-4">
+                <span class="text-muted">Tạm tính:</span>
+                <span class="fw-bold">{{ tong_tien|intcomma }} ₫</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3 border-bottom pb-3">
+                <span class="text-muted">Phí vận chuyển:</span>
+                <span class="fw-bold text-success">Miễn phí</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4">
+                <span class="fs-5 fw-bold">Tổng cộng:</span>
+                <span class="fs-4 fw-bold text-danger">{{ tong_tien|intcomma }} ₫</span>
+            </div>
+            
+            <button type="submit" form="checkoutForm" class="btn btn-primary w-100 fw-bold py-3 fs-5" style="border-radius: 8px;">
+                <i class="fa-solid fa-circle-check me-2"></i> XÁC NHẬN ĐẶT HÀNG
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

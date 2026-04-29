@@ -1,5 +1,5 @@
 {% extends 'shop_app/base.html' %}
-
+{% load humanize %}
 {% block content %}
 <style>
     /* CSS Tùy chỉnh cho Giỏ hàng */
@@ -49,45 +49,42 @@
                                 <th class="text-center">Đơn giá</th>
                                 <th class="text-center">Số lượng</th>
                                 <th class="text-end">Thành tiền</th>
-                                <th></th> </tr>
+                                <th></th>
+                            </tr>
                         </thead>
                         <tbody>
                             {% for item in chi_tiet_list %}
-                            <tr>
+                            <tr id="row-{{ item.id }}">
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="product-img-wrap me-3">
-                                            {% if item.san_pham.hinh_anh %}
-                                                <img src="{{ item.san_pham.hinh_anh.url }}" alt="{{ item.san_pham.ten_san_pham }}">
-                                            {% else %}
-                                                <img src="https://via.placeholder.com/80?text=No+Image">
-                                            {% endif %}
+                                            <img src="{% if item.san_pham.hinh_anh %}{{ item.san_pham.hinh_anh.url }}{% else %}https://via.placeholder.com/80{% endif %}" alt="">
                                         </div>
                                         <div>
                                             <a href="{% url 'detail' item.san_pham.id %}" class="product-name">{{ item.san_pham.ten_san_pham }}</a>
-                                            <span class="badge bg-light text-secondary border border-secondary-subtle">
-                                                {{ item.san_pham.loai_hang.ten_loai }}
-                                            </span>
+                                            <span class="badge bg-light text-secondary border">PC</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="text-center fw-semibold text-muted">
-                                    {{ item.don_gia|floatformat:0 }} đ
-                                </td>
+                                <td class="text-center fw-semibold text-muted">{{ item.don_gia|intcomma }} đ</td>
                                 <td class="text-center">
                                     <div class="qty-control">
-                                        <button type="button" class="qty-btn"><i class="fa-solid fa-minus" style="font-size: 10px;"></i></button>
-                                        <input type="text" class="qty-input" value="{{ item.so_luong_mua }}" readonly>
-                                        <button type="button" class="qty-btn"><i class="fa-solid fa-plus" style="font-size: 10px;"></i></button>
+                                        <button type="button" class="qty-btn btn-update" data-id="{{ item.id }}" data-action="remove">
+                                            <i class="fa-solid fa-minus" style="font-size: 10px;"></i>
+                                        </button>
+                                        <input type="text" class="qty-input" id="qty-{{ item.id }}" value="{{ item.so_luong_mua }}" readonly>
+                                        <button type="button" class="qty-btn btn-update" data-id="{{ item.id }}" data-action="add">
+                                            <i class="fa-solid fa-plus" style="font-size: 10px;"></i>
+                                        </button>
                                     </div>
                                 </td>
-                                <td class="text-end fw-bold text-danger fs-6">
-                                    {% widthratio item.don_gia 1 item.so_luong_mua %} đ
+                                <td class="text-end fw-bold text-danger fs-6" id="total-{{ item.id }}">
+                                    {% widthratio item.don_gia 1 item.so_luong_mua as total %}{{ total|intcomma }} đ
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn-remove" title="Xóa khỏi giỏ">
+                                    <a href="{% url 'remove_cart_item' item.id %}" class="btn-remove" onclick="return confirm('Xóa sản phẩm này?')">
                                         <i class="fa-solid fa-trash-can"></i>
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -95,59 +92,72 @@
                     </table>
                 </div>
             </div>
-            
-            <div class="mt-4">
-                <a href="{% url 'home' %}" class="text-decoration-none fw-bold" style="color: #0d6efd;">
-                    <i class="fa-solid fa-arrow-left-long me-2"></i> Tiếp tục mua sắm
-                </a>
-            </div>
         </div>
 
         <div class="col-lg-4">
             <div class="summary-card">
                 <div class="summary-title">Tóm tắt đơn hàng</div>
-                
                 <div class="summary-row">
                     <span>Tạm tính:</span>
-                    <span class="fw-bold">{{ tong_tien|floatformat:0 }} đ</span>
+                    <span class="fw-bold cart-total-display">{{ tong_tien|intcomma }} đ</span>
                 </div>
                 <div class="summary-row">
                     <span>Phí vận chuyển:</span>
                     <span class="fw-bold text-success">Miễn phí</span>
                 </div>
-                <div class="summary-row">
-                    <span>Khuyến mãi:</span>
-                    <span class="fw-bold text-muted">0 đ</span>
-                </div>
-                
                 <div class="summary-total">
                     <span>Tổng cộng:</span>
-                    <span class="total-price">{{ tong_tien|floatformat:0 }} đ</span>
+                    <span class="total-price cart-total-display">{{ tong_tien|floatformat:0|intcomma }} đ</span>
                 </div>
-                <div class="text-end text-muted mt-1" style="font-size: 0.85rem;">(Đã bao gồm VAT)</div>
                 
-                <button class="btn-checkout">
-                    TIẾN HÀNH ĐẶT HÀNG <i class="fa-solid fa-chevron-right ms-2 fs-6"></i>
-                </button>
-                
-                <div class="mt-4 d-flex justify-content-center gap-2">
-                    <img src="https://cdn-icons-png.flaticon.com/32/196/196578.png" alt="Visa" style="height: 24px;">
-                    <img src="https://cdn-icons-png.flaticon.com/32/196/196561.png" alt="Mastercard" style="height: 24px;">
-                    <img src="https://cdn-icons-png.flaticon.com/32/196/196566.png" alt="Paypal" style="height: 24px;">
-                </div>
+                <a href="{% url 'checkout' %}" class="btn btn-checkout w-100 fw-bold py-3 mt-4 text-center text-decoration-none">
+                    TIẾN HÀNH ĐẶT HÀNG
+                </a>
             </div>
         </div>
     </div>
-
     {% else %}
-    <div class="text-center py-5 bg-white rounded-3 shadow-sm border-0 mt-3">
-        <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" alt="Empty Cart" style="width: 150px; opacity: 0.5; margin-bottom: 20px;">
-        <h4 class="text-muted mb-4 fw-bold">Giỏ hàng của bạn đang trống</h4>
-        <p class="text-muted mb-4">Có vẻ như bạn chưa chọn mua sản phẩm nào.<br>Hãy tham quan cửa hàng và chọn cho mình sản phẩm ưng ý nhé!</p>
-        <a href="{% url 'home' %}" class="btn btn-primary px-5 py-3 fw-bold rounded-pill shadow-sm">
-            <i class="fa-solid fa-store me-2"></i> BẮT ĐẦU MUA SẮM
-        </a>
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5 bg-white shadow-sm border-0" style="border-radius: 12px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" style="width: 150px; opacity: 0.5; margin-bottom: 25px;" alt="Giỏ hàng trống">
+                <h3 class="fw-bold text-dark mb-3">Giỏ hàng của bạn đang trống!</h3>
+                <p class="text-muted mb-4 fs-6">Có vẻ như bạn chưa thêm sản phẩm nào vào giỏ.<br>Hãy lướt xem các sản phẩm cực hot của chúng tôi nhé.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary px-5 py-3 fw-bold fs-6" style="border-radius: 10px; transition: 0.3s;">
+                    <i class="fa-solid fa-arrow-left me-2"></i> TIẾP TỤC MUA SẮM
+                </a>
+            </div>
+        </div>
     </div>
     {% endif %}
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).on('click', '.btn-update', function(){
+    let item_id = $(this).data('id');
+    let action = $(this).data('action');
+    let csrftoken = '{{ csrf_token }}';
+
+    $.ajax({
+        url: "{% url 'update_cart' %}",
+        type: 'POST',
+        data: {
+            'item_id': item_id,
+            'action': action,
+            'csrfmiddlewaretoken': csrftoken
+        },
+        success: function(response){
+            if(response.success){
+                // Cập nhật số lượng trong ô input
+                $('#qty-' + item_id).val(response.new_qty);
+                // Cập nhật thành tiền của món đó
+                $('#total-' + item_id).text(response.item_total);
+                // Cập nhật tổng tiền cả giỏ hàng
+                $('.cart-total-display').text(response.cart_total);
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

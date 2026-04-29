@@ -1,0 +1,77 @@
+{% extends 'shop_app/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 fw-bold">Chi tiết đơn hàng #{{ don_hang.id }}</h4>
+                    <span class="badge bg-info px-3 py-2 fs-6">{{ don_hang.trang_thai }}</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted text-uppercase mb-3">Thông tin nhận hàng</h6>
+                            <p class="mb-1 fw-bold">{{ don_hang.khach_hang.ho_ten }}</p>
+                            <p class="mb-1">{{ don_hang.khach_hang.so_dien_thoai }}</p>
+                            <p class="mb-0">{{ don_hang.khach_hang.dia_chi }}</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h6 class="text-muted text-uppercase mb-3">Ngày đặt hàng</h6>
+                            <p class="fw-bold">{{ don_hang.ngay_dat_hang|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end">Đơn giá</th>
+                                    <th class="text-end">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in chi_tiet_list %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div style="width: 60px; height: 60px; flex-shrink: 0; border-radius: 8px; border: 1px solid #eaeaea; background: #fff; padding: 4px;">
+                                                <img src="{% if item.san_pham.hinh_anh %}{{ item.san_pham.hinh_anh.url }}{% else %}https://via.placeholder.com/60{% endif %}" 
+                                                     alt="{{ item.san_pham.ten_san_pham }}" 
+                                                     style="width: 100%; height: 100%; object-fit: contain;">
+                                            </div>
+                                            <div class="fw-bold text-primary">{{ item.san_pham.ten_san_pham }}</div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">{{ item.so_luong_mua }}</td>
+                                    <td class="text-end align-middle">{{ item.don_gia|intcomma }} ₫</td>
+                                    <td class="text-end fw-bold align-middle">
+                                        {% widthratio item.don_gia 1 item.so_luong_mua as subtotal %}
+                                        {{ subtotal|intcomma }} ₫
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold fs-5 pt-3">Tổng thanh toán:</td>
+                                    <td class="text-end text-danger fw-bold fs-5 pt-3">{{ don_hang.tong_tien|intcomma }} ₫</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 py-4 text-center">
+                    <a href="{% url 'history' %}" class="btn btn-outline-secondary px-4 rounded-pill">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Quay lại lịch sử
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

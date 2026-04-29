@@ -1,0 +1,74 @@
+{% extends 'shop_app/admin_panel/base_admin.html' %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0"><i class="fa-solid fa-users-gear text-primary me-2"></i>Quản lý Nhân sự</h3>
+    <a href="{% url 'admin_employee_add' %}" class="btn btn-primary fw-bold shadow-sm">
+        <i class="fa-solid fa-plus me-2"></i>Thêm Nhân viên
+    </a>
+</div>
+
+<div class="card card-admin border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Nhân viên</th>
+                        <th>Chức vụ</th>
+                        <th>Email liên hệ</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for nv in list_nhan_vien %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; color: #6c757d; font-weight: bold;">
+                                    {{ nv.user.username|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ nv.user.first_name|default:nv.user.username }}</div>
+                                    <div class="small text-muted">@{{ nv.user.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-info text-dark">{{ nv.chuc_vu }}</span></td>
+                        <td class="text-muted">{{ nv.user.email|default:"Chưa cập nhật" }}</td>
+                        <td>
+                            {% if nv.user.is_active %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i>Đang làm việc</span>
+                            {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger"><i class="fa-solid fa-lock me-1"></i>Đã đình chỉ</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'admin_employee_edit' nv.id %}" class="btn btn-sm btn-outline-primary" title="Sửa thông tin">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            {% if nv.user.is_active %}
+                                <a href="{% url 'admin_suspend_employee' nv.id %}" class="btn btn-sm btn-outline-warning ms-1" title="Đình chỉ" onclick="return confirm('Bạn có chắc muốn ĐÌNH CHỈ nhân viên này? Họ sẽ không thể đăng nhập nữa.');">
+                                    <i class="fa-solid fa-ban"></i>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'admin_suspend_employee' nv.id %}" class="btn btn-sm btn-outline-success ms-1" title="Khôi phục" onclick="return confirm('MỞ KHÓA cho nhân viên này hoạt động trở lại?');">
+                                    <i class="fa-solid fa-unlock"></i>
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            Chưa có nhân viên nào trong hệ thống.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

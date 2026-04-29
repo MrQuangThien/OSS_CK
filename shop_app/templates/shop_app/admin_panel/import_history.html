@@ -1,0 +1,44 @@
+{% extends 'shop_app/admin_panel/base_admin.html' %}
+{% block admin_content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold"><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Lịch sử Nhập hàng</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'admin_import_bulk' %}" class="btn btn-primary fw-bold shadow-sm"><i class="fa-solid fa-plus me-2"></i>Tạo Phiếu Nhập Mới</a>
+    </div>
+</div>
+
+<div class="card card-admin">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Mã Phiếu</th>
+                    <th>Ngày Nhập</th>
+                    <th>Người Nhập</th>
+                    <th>Ghi Chú</th>
+                    <th class="text-center pe-4">Chi Tiết</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for phieu in list_phieu %}
+                <tr>
+                    <td class="ps-4 fw-bold text-primary">#PN_{{ phieu.id }}</td>
+                    <td>{{ phieu.ngay_nhap|date:"d/m/Y H:i" }}</td>
+                    <td>{{ phieu.nguoi_nhap.username }}</td>
+                    <td class="text-muted">{{ phieu.ghi_chu }}</td>
+                    <td class="text-center pe-4">
+                        <ul class="list-unstyled text-start mb-0" style="font-size: 0.85rem;">
+                            {% for chitiet in phieu.chi_tiet.all %}
+                                <li>- {{ chitiet.san_pham.ten_san_pham }} <strong class="text-success">(+{{ chitiet.so_luong_nhap }})</strong></li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
