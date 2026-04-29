@@ -27,31 +27,43 @@ urlpatterns = [
     path('chi-tiet/<int:sp_id>/', views.chi_tiet_sp, name='detail'),
     path('dang-nhap/', views.dang_nhap, name='login'),
     path('dang-ky/', views.dang_ky, name='register'),
+    path('tai-khoan/', views.thong_tin_tai_khoan, name='account'),
+    path('thanh-toan/', views.thanh_toan, name='checkout'),
 
     path('dang-xuat/', views.dang_xuat, name='logout'),
 
+    path('san-pham/', views.tat_ca_san_pham, name='all_products'),
     path('them-vao-gio/<int:sp_id>/', views.them_vao_gio, name='add_to_cart'),
+    path('xoa-gio-hang/<int:item_id>/', views.xoa_item_gio_hang, name='remove_cart_item'),
+    path('don-hang/chi-tiet/<int:don_hang_id>/', views.chi_tiet_don_hang, name='order_detail'),
+    path('update-cart/', views.update_cart, name='update_cart'),
     path('gio-hang/', views.xem_gio_hang, name='cart'),
-    path('thanh-toan/', views.thanh_toan, name='checkout'),
     path('lich-su/', views.lich_su_don_hang, name='history'),
+
     # URL DÀNH CHO ADMIN
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-panel/don-hang/', views.admin_quan_ly_don_hang, name='admin_orders'),
+    path('admin-panel/don-hang/tao-moi/', views.admin_tao_don_hang, name='admin_create_order'),
+    path('admin-panel/don-hang/<int:don_id>/', views.admin_chi_tiet_don_hang, name='admin_order_detail'),
+    path('admin-panel/san-pham/', views.admin_san_pham, name='admin_products'),
+    path('admin-panel/san-pham/them/', views.admin_them_san_pham, name='admin_add_product'),
+    path('admin-panel/san-pham/sua/<int:sp_id>/', views.admin_sua_san_pham, name='admin_edit_product'),
+    path('admin-panel/san-pham/xoa/<int:sp_id>/', views.admin_xoa_san_pham, name='admin_delete_product'),
+    path('admin-panel/loai-hang/', views.admin_loai_hang, name='admin_categories'),
+    path('admin-panel/loai-hang/them/', views.admin_them_loai, name='admin_add_category'),
+    path('admin-panel/loai-hang/xoa/<int:loai_id>/', views.admin_xoa_loai, name='admin_delete_category'),
+    # URL KHO HÀNG
     path('admin-panel/kho-hang/', views.admin_kho_hang, name='admin_inventory'),
     path('admin-panel/kho-hang/cap-nhat/<int:kho_id>/', views.admin_cap_nhat_kho, name='admin_update_inventory'),
     path('admin-panel/kho-hang/nhap-loat/', views.admin_nhap_hang_loat, name='admin_import_bulk'),
     path('admin-panel/kho-hang/lich-su/', views.admin_lich_su_nhap, name='admin_import_history'),
-
-    path('admin-panel/loai-hang/', views.admin_loai_hang, name='admin_categories'),
-    path('admin-panel/loai-hang/them/', views.admin_them_loai, name='admin_add_category'),
-    path('admin-panel/loai-hang/xoa/<int:loai_id>/', views.admin_xoa_loai, name='admin_delete_category'),
-
-    
-path('admin-panel/don-hang/', views.admin_quan_ly_don_hang, name='admin_orders'),
-path('admin-panel/don-hang/<int:don_id>/', views.admin_chi_tiet_don_hang, name='admin_order_detail'),
-path('admin-panel/san-pham/', views.admin_san_pham, name='admin_products'),
-path('admin-panel/san-pham/them/', views.admin_them_san_pham, name='admin_add_product'),
-path('admin-panel/san-pham/sua/<int:sp_id>/', views.admin_sua_san_pham, name='admin_edit_product'),
-path('admin-panel/san-pham/xoa/<int:sp_id>/', views.admin_xoa_san_pham, name='admin_delete_product'),
+    # URL NHÂN VIÊN
+    path('admin-panel/nhan-vien/', views.admin_employees, name='admin_employees'),
+    path('admin-panel/nhan-vien/them/', views.admin_employee_add, name='admin_employee_add'),
+    path('admin-panel/nhan-vien/sua/<int:emp_id>/', views.admin_employee_edit, name='admin_employee_edit'),
+    path('admin-panel/nhan-vien/tam-dung/<int:emp_id>/', views.admin_suspend_employee, name='admin_suspend_employee'),
+    # URL KHÁCH HÀNG
+    path('admin-panel/khach-hang/', views.admin_customers, name='admin_customers'),
 ]
 
 if settings.DEBUG:

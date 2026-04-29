@@ -1,0 +1,130 @@
+{% extends 'shop_app/base.html' %}
+
+{% block content %}
+<style>
+    /* Bảng chứa thông tin nới rộng */
+    .profile-wrapper {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 30px rgba(0,0,0,0.04);
+        border: 1px solid #f0f0f0;
+        padding: 40px;
+    }
+
+    /* Khung Avatar dạng vuông bo góc hiện đại */
+    .avatar-box {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #0d6efd, #4facfe);
+        border-radius: 22px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 45px;
+        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25);
+        flex-shrink: 0;
+    }
+
+    /* Style cho Form nhập liệu */
+    .django-form label {
+        font-weight: 700;
+        color: #4b5563;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    
+    .django-form input, .django-form textarea {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 1rem;
+        background-color: #f9fafb;
+        color: #1f2937;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .django-form input:focus, .django-form textarea:focus {
+        border-color: #0d6efd;
+        background-color: #fff;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+    }
+
+    .btn-save {
+        background: #0d6efd;
+        color: white;
+        border-radius: 10px;
+        padding: 14px 35px;
+        font-weight: bold;
+        font-size: 1rem;
+        border: none;
+        transition: 0.3s;
+    }
+    .btn-save:hover {
+        background: #0b5ed7;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(13,110,253,0.3);
+    }
+</style>
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="profile-wrapper">
+                
+                <div class="d-flex flex-column flex-sm-row align-items-sm-center border-bottom pb-4 mb-4 gap-4">
+                    <div class="avatar-box">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+                    <div>
+                        <h2 class="fw-bold mb-2 text-dark">{{ user.username }}</h2>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">
+                            <i class="fa-solid fa-shield-check me-1"></i> Thành viên hệ thống
+                        </span>
+                        <div class="text-muted mt-2 small">Quản lý thông tin cá nhân và địa chỉ giao hàng của bạn.</div>
+                    </div>
+                </div>
+
+                <form method="POST" class="django-form">
+                    {% csrf_token %}
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="text-uppercase">Tên đăng nhập</label>
+                            <input type="text" value="{{ user.username }}" readonly style="background-color: #f3f4f6; cursor: not-allowed; color: #9ca3af;">
+                            <div class="form-text small mt-2 fw-semibold text-muted">
+                                <i class="fa-solid fa-lock text-warning me-1"></i> Không thể thay đổi.
+                            </div>
+                        </div>
+
+                        {% for field in form %}
+                        
+                        <div class="col-12 {% if field.name != 'dia_chi' %}col-md-6{% endif %}">
+                            <label class="text-uppercase" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-2 fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-5 pt-3 d-flex justify-content-between align-items-center">
+                        <a href="/" class="text-decoration-none text-muted fw-bold" style="transition: 0.2s;">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Trở về trang chủ
+                        </a>
+                        <button type="submit" class="btn btn-save shadow-sm">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> LƯU THAY ĐỔI
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

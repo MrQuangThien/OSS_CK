@@ -1,15 +1,17 @@
 {% extends 'shop_app/base.html' %}
+{% load humanize %} 
+
 {% block content %}
 <div class="row mt-4 mb-5">
     <div class="col-12">
-        <h2 class="fw-bold mb-4"><i class="fa-solid fa-clipboard-list me-2"></i>Lịch sử mua hàng</h2>
+        <h2 class="fw-bold mb-4"><i class="fa-solid fa-clipboard-list me-2 text-primary"></i>Lịch sử mua hàng</h2>
         
-        {% if danh_sach_don %}
+        {% if ds_don_hang %}
             <div class="table-responsive bg-white rounded-3 shadow-sm p-3">
-                <table class="table table-hover">
+                <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Mã Đơn</th>
+                            <th style="min-width: 250px;">Sản Phẩm</th>
                             <th>Ngày Đặt</th>
                             <th>Tổng Tiền</th>
                             <th>Trạng Thái</th>
@@ -17,16 +19,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for don in danh_sach_don %}
+                        {% for dh in ds_don_hang %}
                         <tr>
-                            <td class="fw-bold">#{{ don.id }}</td>
-                            <td>{{ don.ngay_dat_hang|date:"d/m/Y H:i" }}</td>
-                            <td class="fw-bold text-danger">{{ don.tong_tien|floatformat:0 }} đ</td>
                             <td>
-                                <span class="badge bg-warning text-dark px-3 py-2">{{ don.trang_thai }}</span>
+                                <div style="max-width: 300px;">
+                                    {% for item in dh.chitietdonhang_set.all|slice:":2" %}
+                                        <div class="text-truncate fw-semibold text-dark" title="{{ item.san_pham.ten_san_pham }}">
+                                            • {{ item.san_pham.ten_san_pham }} <span class="text-muted fw-normal">(x{{ item.so_luong_mua }})</span>
+                                        </div>
+                                    {% endfor %}
+                                    
+                                    {% if dh.chitietdonhang_set.count > 2 %}
+                                        <div class="text-muted small fst-italic mt-1">
+                                            ... và {{ dh.chitietdonhang_set.count|add:"-2" }} sản phẩm khác
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            
+                            <td>{{ dh.ngay_dat_hang|date:"d/m/Y H:i" }}</td>
+                            <td class="fw-bold text-danger">{{ dh.tong_tien|floatformat:0|intcomma }} đ</td>
+                            <td>
+                                <span class="badge bg-warning text-dark px-3 py-2">{{ dh.trang_thai }}</span>
                             </td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                                <a href="{% url 'order_detail' dh.id %}" class="btn btn-sm btn-outline-primary fw-bold px-3">Xem chi tiết</a>
                             </td>
                         </tr>
                         {% endfor %}

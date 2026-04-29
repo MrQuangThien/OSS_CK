@@ -3,9 +3,12 @@ from django.contrib.auth.models import User
 
 # 1. Bảng Loại Hàng (Category)
 class LoaiHang(models.Model):
+    ma_loai = models.CharField(max_length=10, null=True, blank=True, verbose_name="Mã loại")
     ten_loai = models.CharField(max_length=200)
 
     def __str__(self):
+        if self.ma_loai:
+            return f"{self.ma_loai} - {self.ten_loai}"
         return self.ten_loai
 
 # 2. Bảng Sản Phẩm (Product)
@@ -15,21 +18,38 @@ class SanPham(models.Model):
     gia_ban = models.DecimalField(max_digits=10, decimal_places=0) 
     hinh_anh = models.ImageField(upload_to='san_pham/', null=True, blank=True)
     la_san_pham_moi = models.BooleanField(default=True) 
-    la_san_pham_noi_bat = models.BooleanField(default=False) 
+    la_san_pham_noi_bat = models.BooleanField(default=False)
+    mo_ta_ngan = models.TextField(blank=True, null=True, verbose_name="Mô tả ngắn")
+    uu_dai = models.TextField(blank=True, null=True, verbose_name="Ưu đãi đặc biệt")
+    mo_ta_chi_tiet = models.TextField(blank=True, null=True, verbose_name="Mô tả chi tiết")
 
     def __str__(self):
         return self.ten_san_pham
-
+    
+    @property
+    def ton_kho(self):
+        from .models import KhoHang # Import tại đây để tránh lỗi vòng lặp
+        # Tìm xem sản phẩm này đã có trong kho chưa
+        kho = KhoHang.objects.filter(san_pham=self).first()
+        return kho.so_luong_ton if kho else 0
+    
+class HinhAnhSanPham(models.Model):
+    san_pham = models.ForeignKey(SanPham, on_delete=models.CASCADE)
+    hinh_anh = models.ImageField(upload_to='san_pham_gallery/')
+    
+    def __str__(self):
+        return f"Ảnh phụ của {self.san_pham.ten_san_pham}"
+    
 # 3. Bảng Khách Hàng (Customer)
 class KhachHang(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    so_dien_thoai = models.CharField(max_length=15)
-    dia_chi = models.TextField()
-    ma_otp = models.CharField(max_length=6, blank=True, null=True)
-    da_xac_thuc_lan_dau = models.BooleanField(default=False)
+    # Thêm các trường này
+    ho_ten = models.CharField(max_length=255, null=True, blank=True, verbose_name="Họ tên")
+    so_dien_thoai = models.CharField(max_length=15, null=True, blank=True, verbose_name="Số điện thoại")
+    dia_chi = models.TextField(null=True, blank=True, verbose_name="Địa chỉ giao hàng")
 
     def __str__(self):
-        return self.user.username
+        return self.ho_ten if self.ho_ten else self.user.username
 
 # 4. Bảng Nhân Viên (Employee)
 class NhanVien(models.Model):
@@ -84,7 +104,9 @@ class DonHang(models.Model):
     ngay_dat_hang = models.DateTimeField(auto_now_add=True)
     tong_tien = models.DecimalField(max_digits=12, decimal_places=0, default=0)
     trang_thai = models.CharField(max_length=50, default="Chờ xử lý")
-
+    nhan_vien_tao = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='don_hang_tao')
+    ghi_chu = models.TextField(blank=True, null=True)
+    
     def __str__(self):
         return f"Đơn hàng {self.id} - {self.khach_hang.user.username}"
 
@@ -98,7 +120,7 @@ class ChiTietDonHang(models.Model):
     def __str__(self):
         return f"{self.don_hang.id} - {self.san_pham.ten_san_pham}"
     
-# Bảng lưu thông tin chung của 1 lần nhập hàng
+    # Bảng lưu thông tin chung của 1 lần nhập hàng
 class PhieuNhap(models.Model):
     ngay_nhap = models.DateTimeField(auto_now_add=True)
     nguoi_nhap = models.ForeignKey(User, on_delete=models.SET_NULL, null=True) # Ai là người thao tác
@@ -112,3 +134,17 @@ class ChiTietPhieuNhap(models.Model):
     phieu_nhap = models.ForeignKey(PhieuNhap, on_delete=models.CASCADE, related_name='chi_tiet')
     san_pham = models.ForeignKey(SanPham, on_delete=models.CASCADE)
     so_luong_nhap = models.IntegerField(default=0)
+
+
+class GioHang(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    san_pham = models.ForeignKey(SanPham, on_delete=models.CASCADE)
+    so_luong = models.IntegerField(default=1)
+
+    # Hàm tự động tính thành tiền cho từng món
+    @property
+    def thanh_tien(self):
+        return self.so_luong * self.san_pham.gia_ban
+
+    def __str__(self):
+        return f"{self.user.username} - {self.san_pham.ten_san_pham}"

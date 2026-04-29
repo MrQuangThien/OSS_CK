@@ -1,118 +1,170 @@
 {% extends 'shop_app/admin_panel/base_admin.html' %}
-{% block admin_content %}
+{% load humanize %} {% block admin_content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="row mb-4">
+<style>
+    /* CSS CHO CÁC THẺ THỐNG KÊ (STAT CARDS) */
+    .stat-card {
+        border-radius: 16px;
+        overflow: hidden;
+        border: none;
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    .stat-card .card-body {
+        padding: 1.5rem;
+        position: relative;
+        z-index: 2;
+    }
+    /* Icon watermark khổng lồ mờ ảo ở góc phải */
+    .stat-icon-bg {
+        position: absolute;
+        right: -10px;
+        bottom: -20px;
+        font-size: 6.5rem;
+        opacity: 0.15;
+        transform: rotate(-15deg);
+        z-index: 1;
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover .stat-icon-bg {
+        transform: rotate(0deg) scale(1.1);
+    }
+
+    /* Bảng màu Gradient hiện đại */
+    .bg-grad-primary { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); }
+    .bg-grad-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
+    .bg-grad-info { background: linear-gradient(135deg, #36b9cc 0%, #258391 100%); }
+    .bg-grad-danger { background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%); }
+
+    /* Làm mềm Badge Trạng thái */
+    .badge-soft-warning { background-color: rgba(255, 193, 7, 0.15); color: #b78a00; border: 1px solid rgba(255, 193, 7, 0.3); }
+    .badge-soft-info { background-color: rgba(13, 202, 240, 0.1); color: #087990; border: 1px solid rgba(13, 202, 240, 0.3); }
+    .badge-soft-success { background-color: rgba(25, 135, 84, 0.1); color: #146c43; border: 1px solid rgba(25, 135, 84, 0.3); }
+    .badge-soft-secondary { background-color: rgba(108, 117, 125, 0.1); color: #5c636a; border: 1px solid rgba(108, 117, 125, 0.3); }
+</style>
+
+<div class="row align-items-center mb-4">
     <div class="col-12">
-        <h2 class="fw-bold"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Tổng quan hệ thống</h2>
+        <h3 class="fw-bold m-0 text-dark"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Tổng quan hệ thống</h3>
+        <p class="text-muted small mt-1 mb-0">Báo cáo hiệu suất kinh doanh trong thời gian qua.</p>
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card card-admin border-0 bg-primary text-white h-100 p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase mb-2 opacity-75">Tổng Doanh Thu</h6>
-                    <h3 class="fw-bold mb-0">{{ tong_doanh_thu|floatformat:0 }} đ</h3>
-                </div>
-                <i class="fa-solid fa-sack-dollar fs-1 opacity-50"></i>
+<div class="row mb-4 g-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card bg-grad-primary text-white h-100 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-uppercase mb-2 fw-bold opacity-75" style="letter-spacing: 1px; font-size: 0.8rem;">Tổng Doanh Thu</h6>
+                <h3 class="fw-bold mb-0">{{ tong_doanh_thu|floatformat:0|intcomma }} đ</h3>
             </div>
+            <i class="fa-solid fa-sack-dollar stat-icon-bg"></i>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card card-admin border-0 bg-success text-white h-100 p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase mb-2 opacity-75">Đơn Hàng</h6>
-                    <h3 class="fw-bold mb-0">{{ tong_don_hang }}</h3>
-                </div>
-                <i class="fa-solid fa-cart-shopping fs-1 opacity-50"></i>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card bg-grad-success text-white h-100 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-uppercase mb-2 fw-bold opacity-75" style="letter-spacing: 1px; font-size: 0.8rem;">Đơn Hàng</h6>
+                <h3 class="fw-bold mb-0">{{ tong_don_hang|intcomma }}</h3>
             </div>
+            <i class="fa-solid fa-cart-shopping stat-icon-bg"></i>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card card-admin border-0 bg-info text-white h-100 p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase mb-2 opacity-75">Khách Hàng</h6>
-                    <h3 class="fw-bold mb-0">{{ tong_khach_hang }}</h3>
-                </div>
-                <i class="fa-solid fa-users fs-1 opacity-50"></i>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card bg-grad-info text-white h-100 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-uppercase mb-2 fw-bold opacity-75" style="letter-spacing: 1px; font-size: 0.8rem;">Khách Hàng</h6>
+                <h3 class="fw-bold mb-0">{{ tong_khach_hang|intcomma }}</h3>
             </div>
+            <i class="fa-solid fa-users stat-icon-bg"></i>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card card-admin border-0 bg-danger text-white h-100 p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase mb-2 opacity-75">Sắp hết hàng</h6>
-                    <h3 class="fw-bold mb-0">{{ sp_sap_het }} <span class="fs-6 fw-normal">sản phẩm</span></h3>
-                </div>
-                <i class="fa-solid fa-triangle-exclamation fs-1 opacity-50"></i>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card bg-grad-danger text-white h-100 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-uppercase mb-2 fw-bold opacity-75" style="letter-spacing: 1px; font-size: 0.8rem;">Sắp Hết Hàng</h6>
+                <h3 class="fw-bold mb-0">{{ sp_sap_het }} <span class="fs-6 fw-normal">sản phẩm</span></h3>
             </div>
+            <i class="fa-solid fa-triangle-exclamation stat-icon-bg"></i>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-5 mb-4">
-        <div class="card card-admin h-100">
-            <div class="card-header bg-white fw-bold py-3"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Tỉ lệ Trạng thái Đơn hàng</div>
+<div class="row g-4">
+    <div class="col-xl-5 col-lg-6 mb-4">
+        <div class="card card-admin h-100 shadow-sm" style="border-radius: 12px; border: 1px solid #f0f0f0;">
+            <div class="card-header bg-white fw-bold py-3 border-bottom-0">
+                <i class="fa-solid fa-chart-pie me-2 text-primary"></i>Tỉ lệ Trạng thái Đơn hàng
+            </div>
             <div class="card-body d-flex justify-content-center align-items-center">
-                <div style="width: 300px; height: 300px;">
+                <div style="position: relative; height: 320px; width: 100%;">
                     <canvas id="orderStatusChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-7 mb-4">
-        <div class="card card-admin h-100">
-            <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between">
+    <div class="col-xl-7 col-lg-6 mb-4">
+        <div class="card card-admin h-100 shadow-sm" style="border-radius: 12px; border: 1px solid #f0f0f0;">
+            <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center border-bottom">
                 <span><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Giao dịch gần đây</span>
-                <a href="{% url 'admin_orders' %}" class="text-decoration-none small">Xem tất cả</a>
+                <a href="{% url 'admin_orders' %}" class="btn btn-sm btn-outline-primary shadow-sm" style="border-radius: 8px;">Xem tất cả</a>
             </div>
             <div class="card-body p-0">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-3">Mã</th>
-                            <th>Khách hàng</th>
-                            <th class="text-end">Tổng tiền</th>
-                            <th class="text-center">Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for don in don_hang_moi %}
-                        <tr>
-                            <td class="ps-3 fw-bold text-primary">#{{ don.id }}</td>
-                            <td>{{ don.khach_hang.user.username }}</td>
-                            <td class="text-end fw-bold text-danger">{{ don.tong_tien|floatformat:0 }} đ</td>
-                            <td class="text-center">
-                                {% if don.trang_thai == 'Chờ xác nhận' %}<span class="badge bg-warning text-dark">Chờ xác nhận</span>
-                                {% elif don.trang_thai == 'Đang giao hàng' %}<span class="badge bg-info text-dark">Đang giao</span>
-                                {% elif don.trang_thai == 'Hoàn thành' %}<span class="badge bg-success">Hoàn thành</span>
-                                {% else %}<span class="badge bg-secondary">{{ don.trang_thai }}</span>{% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="4" class="text-center text-muted py-3">Chưa có giao dịch nào</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="ps-4 py-3">Mã đơn</th>
+                                <th class="py-3">Khách hàng</th>
+                                <th class="text-end py-3">Tổng tiền</th>
+                                <th class="text-center pe-4 py-3">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for don in don_hang_moi %}
+                            <tr>
+                                <td class="ps-4 fw-bold text-primary py-3">#{{ don.id }}</td>
+                                <td class="py-3">
+                                    <div class="fw-semibold text-dark">{{ don.khach_hang.user.username }}</div>
+                                </td>
+                                <td class="text-end fw-bold text-danger py-3">{{ don.tong_tien|floatformat:0|intcomma }} đ</td>
+                                <td class="text-center pe-4 py-3">
+                                    {% if don.trang_thai == 'Chờ xác nhận' %}
+                                        <span class="badge badge-soft-warning rounded-pill px-3 py-2">Chờ xác nhận</span>
+                                    {% elif don.trang_thai == 'Đang giao hàng' %}
+                                        <span class="badge badge-soft-info rounded-pill px-3 py-2">Đang giao</span>
+                                    {% elif don.trang_thai == 'Hoàn thành' %}
+                                        <span class="badge badge-soft-success rounded-pill px-3 py-2">Hoàn thành</span>
+                                    {% else %}
+                                        <span class="badge badge-soft-secondary rounded-pill px-3 py-2">{{ don.trang_thai }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted py-5">Chưa có giao dịch nào gần đây.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Nhận mảng dữ liệu từ Python (views.py) truyền sang
     const dataFromDjango = {{ chart_data }};
     
     const ctx = document.getElementById('orderStatusChart').getContext('2d');
     new Chart(ctx, {
-        type: 'doughnut', // Biểu đồ hình bánh Donut
+        type: 'doughnut',
         data: {
             labels: ['Chờ xác nhận', 'Đang giao hàng', 'Hoàn thành', 'Đã hủy'],
             datasets: [{
@@ -123,14 +175,22 @@
                     '#198754', // Xanh lá (Hoàn thành)
                     '#6c757d'  // Xám (Đã hủy)
                 ],
-                borderWidth: 2
+                borderWidth: 2,
+                hoverOffset: 10 // Hiệu ứng nảy miếng bánh khi di chuột vào biểu đồ
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            cutout: '70%', // Làm mỏng vành Donut lại cho tinh tế hơn
             plugins: {
-                legend: { position: 'bottom' }
+                legend: { 
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: { family: "'Segoe UI', sans-serif", size: 13 }
+                    }
+                }
             }
         }
     });

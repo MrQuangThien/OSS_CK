@@ -17,10 +17,26 @@
         <div class="card card-admin p-4">
             <form method="POST">
                 {% csrf_token %}
-                {{ form.as_p }}
+                
+                <div class="mb-3 text-start">
+                    <label class="form-label text-muted">Tồn kho hiện tại:</label>
+                    <input type="text" class="form-control fw-bold bg-light" value="{{ kho.so_luong_ton }} chiếc" disabled>
+                </div>
+                
+                <div class="mb-4 text-start">
+                    <label class="form-label fw-bold text-primary">Số lượng Nhập / Xuất:</label>
+                    <input type="number" name="so_luong_thay_doi" class="form-control form-control-lg text-center fw-bold text-primary" value="0" required>
+                    <div class="form-text mt-2">
+                        <i class="fa-solid fa-circle-info me-1"></i>
+                        <strong>Mẹo:</strong> Nhập số dương (VD: <code>5</code>) để thêm hàng, nhập số có dấu trừ (VD: <code>-2</code>) để xuất hao hụt.
+                    </div>
+                </div>
+
                 <hr>
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary px-4 fw-bold"><i class="fa-solid fa-floppy-disk me-2"></i>LƯU SỐ LƯỢNG</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>LƯU THAY ĐỔI
+                    </button>
                 </div>
             </form>
         </div>

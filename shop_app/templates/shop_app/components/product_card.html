@@ -1,0 +1,55 @@
+{% load humanize %}
+<div class="product-card">
+    <a href="{% url 'detail' sp.id %}" class="text-decoration-none d-flex flex-column flex-grow-1">
+        
+        {% if sp.la_san_pham_moi %}
+            <div class="badge-new">MỚI</div>
+        {% endif %}
+
+        {% if sp.la_san_pham_noi_bat %}
+            <div class="badge-hot"><i class="fa-solid fa-fire me-1"></i>HOT</div>
+        {% endif %}
+        
+        <div class="img-wrapper">
+            {% if sp.hinh_anh %}
+                <img src="{{ sp.hinh_anh.url }}" alt="{{ sp.ten_san_pham }}">
+            {% else %}
+                <img src="https://via.placeholder.com/200x200?text=No+Image" alt="">
+            {% endif %}
+        </div>
+        
+        <div class="card-info px-3">
+            <h3 class="card-title">{{ sp.ten_san_pham }}</h3>
+            <div class="card-price">{{ sp.gia_ban|intcomma }} ₫</div>
+        </div>
+    </a>
+
+    <div class="card-actions px-3 pb-3">
+        <div class="d-flex align-items-center w-100">
+            
+            {% if sp.ton_kho > 0 %}
+                <form action="{% url 'add_to_cart' sp.id %}" method="POST" class="m-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="so_luong" value="1">
+                    <button type="submit" class="btn-add-cart">
+                        <i class="fa-solid fa-cart-plus me-1"></i> Thêm vào giỏ
+                    </button>
+                </form>
+
+                <span class="stock-badge text-success ms-auto" style="background-color: #e5f9f0;">
+                    <i class="fa-solid fa-check me-1"></i>Còn hàng
+                </span>
+                
+            {% else %}
+                <button type="button" class="btn-add-cart bg-secondary text-white border-0" style="cursor: not-allowed;" disabled>
+                    <i class="fa-solid fa-ban me-1"></i> TẠM HẾT
+                </button>
+
+                <span class="stock-badge text-danger ms-auto" style="background-color: #ffe6e6;">
+                    <i class="fa-solid fa-xmark me-1"></i>Hết hàng
+                </span>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>

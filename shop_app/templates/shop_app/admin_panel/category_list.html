@@ -11,23 +11,26 @@
 <div class="card card-admin">
     <div class="card-body p-0">
         <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr><th class="ps-4">ID</th><th>Tên Loại Hàng</th><th class="text-center pe-4">Thao Tác</th></tr>
-            </thead>
+           <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Mã Loại Hàng</th> 
+                        <th>Tên Loại Hàng</th>
+                        <th class="text-end pe-4">Thao Tác</th>
+                    </tr>
+                </thead>
             <tbody>
-                {% for loai in list_loai %}
-                <tr>
-                    <td class="ps-4">#{{ loai.id }}</td>
-                    <td class="fw-bold">{{ loai.ten_loai }}</td>
-                    <td class="text-center pe-4">
-                        <a href="{% url 'admin_delete_category' loai.id %}" class="btn btn-sm btn-outline-danger" 
-                           onclick="return confirm('Bạn có chắc chắn muốn xóa?');">
-                            <i class="fa-solid fa-trash"></i> Xóa
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
+                    {% for loai in list_loai %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-primary">{{ loai.ma_loai|default:"Chưa có mã"|upper }}</td>
+                        <td class="fw-bold">{{ loai.ten_loai }}</td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'admin_delete_category' loai.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                <i class="fa-solid fa-trash"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
         </table>
     </div>
 </div>
